@@ -23,7 +23,6 @@ function(data, river, covariates, Z.normalize=TRUE, no.det=TRUE, ll.type="norm",
     source.area <- river$AG$width*river$AG$leng
   } else if (source.area=="SC"){source.area <- river$SC$A}
 
-  Z.normalize=TRUE
   # Z-normalize covariates
   if (Z.normalize){
     for (i in 1:length(covariates)){
