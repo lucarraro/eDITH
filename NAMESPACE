@@ -1,0 +1,8 @@
+export(run_eDITH_BT)
+importFrom(Rcpp, evalCpp)
+import(BayesianTools)
+importFrom(LaplacesDemon, dtrunc, rtrunc)
+import(OCNet)
+importFrom(rivnet,aggregate_river)
+importFrom("stats", "sd", "plnorm", "pnbinom", "pnorm")
+useDynLib(eDITH, .registration=TRUE)
