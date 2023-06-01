@@ -93,6 +93,7 @@ function(data, river, covariates, Z.normalize=TRUE, no.det=TRUE, ll.type="norm",
               param_map = map$parametersMAP,
               probDet_map = probDetection,
               ll.type=ll.type, no.det=no.det, cI=cI, gD=gD, data=data,
+              covariates = covariates, source.area = source.area,
               outMCMC=outMCMC) # this is biggish (OK with thinning)
 
   invisible(out)
