@@ -39,7 +39,7 @@ source.area="AG",
   area is the reach surface, i.e. length*width), \code{"SC"} (if the source area is the subcatchment area), or,
   alternatively, a vector with length \code{river$AG$nodes}.}
   \item{mcmc.settings}{List. It is passed as argument \code{settings} in \code{\link{runMCMC}}. Default is 
-  \code{settings <- list(iterations = 2.7e6, burnin=1.8e6, message = TRUE, thin = 10).}}
+  \code{list(iterations = 2.7e6, burnin=1.8e6, message = TRUE, thin = 10).}}
   \item{likelihood}{Likelihood function to be passed as \code{likelihood} argument to \code{\link{createBayesianSetup}}.
   If not specified, it is generated based on arguments \code{no.det} and \code{ll.type}.}
   \item{prior}{Prior function to be passed as \code{prior} argument to \code{\link{createBayesianSetup}}.
@@ -76,6 +76,8 @@ corresponding to the maximum a posteriori parameter  estimate \code{param_map}. 
 parameter estimate \code{param_map}. It has length equal to \code{river$AG$nNodes}}.
 \item{cI}{Output of the call to \code{\link{getCredibleIntervals}}.}
 \item{gD}{Output of the call to \code{\link{gelmanDiagnostics}}.}
+\item{covariates}{Data frame containing input covariate values (possibly Z-normalized).}
+\item{source.area}{Vector of source area values.}
 \item{outMCMC}{Object of class \code{mcmcSampler} returned by the call to \code{\link{runMCMC}}.} 
 Moreover, arguments \code{ll.type}, \code{no.det} and \code{data} are added to the list.
 }
