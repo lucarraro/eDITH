@@ -8,8 +8,8 @@ Add description
 }
 
 \usage{
-run_eDITH_BT(data, river, covariates, Z.normalize = TRUE, no.det = TRUE, ll.type = "norm", 
-source.area="AG",
+run_eDITH_BT(data, river, covariates, Z.normalize = TRUE, no.det = TRUE, 
+ll.type = "norm", source.area="AG",
     mcmc.settings = NULL, likelihood = NULL, prior = NULL, sampler.type = "DREAMzs", 
 	tau.prior = list(spec = "lnorm", a = 0, b = Inf, meanlog = log(5), 
 		sd = sqrt(log(5) - log(4))), 
@@ -73,7 +73,7 @@ estimate \code{param_map}. It has length equal to \code{river$AG$nNodes}.}
 \item{C_map}{Vector of best-fit eDNA values (in the same unit as \code{data$values}, i.e. concentrations or read numbers) 
 corresponding to the maximum a posteriori parameter  estimate \code{param_map}. It has length equal to \code{river$AG$nNodes}.}
 \item{probDet_map}{Vector of best-fit detection probabilities corresponding to the maximum a posteriori
-parameter estimate \code{param_map}. It has length equal to \code{river$AG$nNodes}}.
+parameter estimate \code{param_map}. It has length equal to \code{river$AG$nNodes}.}
 \item{cI}{Output of the call to \code{\link{getCredibleIntervals}}.}
 \item{gD}{Output of the call to \code{\link{gelmanDiagnostics}}.}
 \item{covariates}{Data frame containing input covariate values (possibly Z-normalized).}
