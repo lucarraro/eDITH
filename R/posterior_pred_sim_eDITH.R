@@ -1,4 +1,5 @@
-posterior_pred_sim_eDITH <- function(x, river, nParamSets = 10000, nDrawsPerParamSet = 10){
+posterior_pred_sim_eDITH <- function(x, river, nParamSets = 10000,
+                                     nDrawsPerParamSet = 10, verbose = FALSE){
 
   ss <- sort(river$AG$A,index.return=T); ss <- ss$ix
 
@@ -42,7 +43,15 @@ posterior_pred_sim_eDITH <- function(x, river, nParamSets = 10000, nDrawsPerPara
       pps[k, ] <- tmp
       k <- k + 1
     }
+    if (verbose){
+      if (i %% round(nParamSets/100) == 0){
+        message(sprintf("%.2f%% completed  \r",
+                        100*(k-1)/nParamSets/nDrawsPerParamSet),
+                appendLF=FALSE)
+      }
+    }
   }
+  if (verbose){message("100.00% completed", appendLF=FALSE)}
 
   invisible(pps)
 

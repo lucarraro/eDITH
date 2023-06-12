@@ -10,7 +10,8 @@ These can be used for diagnostics purposes, in particular to assess scaled (quan
 }
 
 \usage{
-posterior_pred_sim_eDITH(x, river, nParamSets = 10000, nDrawsPerParamSet = 10)
+posterior_pred_sim_eDITH(x, river, nParamSets = 10000, nDrawsPerParamSet = 10, 
+verbose = FALSE)
 }
 
 \arguments{
@@ -18,6 +19,7 @@ posterior_pred_sim_eDITH(x, river, nParamSets = 10000, nDrawsPerParamSet = 10)
   \item{river}{A \code{river} object generated via \code{\link{aggregate_river}}.}
   \item{nParamSets}{Number of unique parameter sets sampled from the posterior distribution.}
   \item{nDrawsPerParamSet}{Number of simulations run per parameter set.}
+  \item{verbose}{Logical. Should updates be printed on the console?}
 }
 \details{
 \code{nParamSets} can be higher than the number of unique parameter sets in the posterior distribution, 

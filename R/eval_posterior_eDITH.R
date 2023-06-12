@@ -8,7 +8,7 @@ eval_posterior_eDITH <- function(x, river){
   nChains <- length(x$outMCMC$chain)
   mcmc.sample <- NULL
   for (i in 1:nChains){
-  mcmc.sample <- rbind(mcmc.sample, x$outMCMC$chain[[i]][-1,1:x$outMCMC$setup$numPars])}
+    mcmc.sample <- rbind(mcmc.sample, x$outMCMC$chain[[i]][-1,1:x$outMCMC$setup$numPars])}
 
   mcmc.sample <- unique(mcmc.sample)
   probDetection_mat <- matrix(0,dim(mcmc.sample)[1],river$AG$nNodes)
@@ -25,24 +25,35 @@ eval_posterior_eDITH <- function(x, river){
     p_mat[r, ] <- p
     C_mat[r, ] <- C
 
-    local_expected_C <- p*x$source.area*exp(-river$AG$leng/river$AG$velocity/tau/3600)/q
+    local_expected_C <- p*x$source.area*exp(-river$AG$leng/river$AG$velocity/tau)/q
     if (x$ll.type=="norm") {
-      probDetection_mat[r, ] <- 1 - pnorm(0, mean = local_expected_C, sd = mcmc.sample[r,"sigma"])
+      pD <- 1 - pnorm(0, mean = local_expected_C, sd = mcmc.sample[r,"sigma"])
     } else if (x$ll.type=="lnorm"){
-      probDetection_mat[r, ] <- 1 - plnorm(0, meanlog = log(local_expected_C^2/sqrt(mcmc.sample[r,"sigma"]^2 + local_expected_C^2)),
-                                           sdlog = sqrt(log(mcmc.sample[r,"sigma"]^2/local_expected_C^2 + 1)))
+      pD <- 1 - plnorm(0, meanlog = log(local_expected_C^2/sqrt(mcmc.sample[r,"sigma"]^2 + local_expected_C^2)),
+                       sdlog = sqrt(log(mcmc.sample[r,"sigma"]^2/local_expected_C^2 + 1)))
     } else if (x$ll.type=="nbinom"){
-      probDetection_mat[r, ] <- 1 - pnbinom(0, size = local_expected_C/(mcmc.sample[r,"omega"]-1),
-                                            prob = 1/mcmc.sample[r,"omega"])
-    }
+      pD <- 1 - pnbinom(0, size = local_expected_C/(mcmc.sample[r,"omega"]-1),
+                        prob = 1/mcmc.sample[r,"omega"])
+    } else {pD <- numeric(river$AG$nNodes)}
+
+    if (x$no.det){
+      Cstar <- mcmc.sample[r, "Cstar"]
+      pD <- pD*(1-exp(-local_expected_C/Cstar))}
+
+    probDetection_mat[r, ] <- pD
   }
 
   x[["p_median"]] <- apply(p_mat,2,median)
   x[["p_mean"]]   <- apply(p_mat,2,mean)
   x[["C_median"]] <- apply(C_mat,2,median)
   x[["C_mean"]]   <- apply(C_mat,2,mean)
-  x[["probDetection_median"]] <- apply(probDetection_mat,2,median)
-  x[["probDetection_mean"]]   <- apply(probDetection_mat,2,mean)
+
+  if (x$ll.type=="custom"){
+    x[["probDetection_median"]] <- x[["probDetection_mean"]] <- numeric(0)
+  } else {
+    x[["probDetection_median"]] <- apply(probDetection_mat,2,median)
+    x[["probDetection_mean"]]   <- apply(probDetection_mat,2,mean)
+  }
 
   invisible(x)
 }

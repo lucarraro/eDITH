@@ -1,61 +1,71 @@
 run_eDITH_BT <-
-function(data, river, covariates, Z.normalize=TRUE, no.det=TRUE, ll.type="norm",
-         source.area = "AG",
-         mcmc.settings = NULL, likelihood = NULL, prior = NULL, sampler.type = "DREAMzs",
-         #tau.prior = list(spec="norm",a=0,b=Inf, mean=5, sd=2),
-         tau.prior = list(spec="lnorm",a=0,b=Inf, meanlog=log(5), sd=sqrt(log(5)-log(4))),
-         log_p0.prior = list(spec="unif",min=-20, max=0),
-         beta.prior = list(spec="norm",sd=1),
-         sigma.prior = list(spec="unif",min=0, max=max(data$values, na.rm = TRUE)),
-         omega.prior = list(spec="unif",min=1, max=10*max(data$values, na.rm = TRUE)),
-         Cstar.prior = list(spec="unif",min=0, max=max(data$values, na.rm = TRUE))){
+  function(data, river, covariates, Z.normalize = TRUE, no.det = TRUE,
+           ll.type = "norm", source.area = "AG", mcmc.settings = NULL,
+           likelihood = NULL, prior = NULL, sampler.type = "DREAMzs",
+           #tau.prior = list(spec="norm",a=0,b=Inf, mean=5, sd=2),
+           tau.prior = list(spec="lnorm",a=0,b=Inf, meanlog=log(5), sd=sqrt(log(5)-log(4))),
+           log_p0.prior = list(spec="unif",min=-20, max=0),
+           beta.prior = list(spec="norm",sd=1),
+           sigma.prior = list(spec="unif",min=0, max=max(data$values, na.rm = TRUE)),
+           omega.prior = list(spec="unif",min=1, max=10*max(data$values, na.rm = TRUE)),
+           Cstar.prior = list(spec="unif",min=0, max=max(data$values, na.rm = TRUE))){
 
-  out <- prepare.prior(covariates, no.det, ll.type, tau.prior, log_p0.prior,
-                       beta.prior, sigma.prior, omega.prior, Cstar.prior)
-  names.par <- out$names.par; allPriors <- out$allPriors
-
-  ss <- sort(river$AG$A,index.return=T); ss <- ss$ix
-
-  q <- numeric(river$AG$nNodes)
-  for (i in 1:river$AG$nNodes) q[i] <- river$AG$discharge[i] - sum(river$AG$discharge[which(river$AG$downNode==i)])
-
-  if (source.area=="AG"){
-    source.area <- river$AG$width*river$AG$leng
-  } else if (source.area=="SC"){source.area <- river$SC$A}
-
-  # Z-normalize covariates
-  if (Z.normalize){
-    for (i in 1:length(covariates)){
-      covariates[,i] <- (covariates[,i]-mean(covariates[,i]))/sd(covariates[,i])
+    if (is.null(prior) & !is.null(likelihood)){
+      stop('If a custom likelihood is specified, a custom prior must also be specified.')
     }
+
+    if (!no.det & ll.type =="lnorm" & any(data$values==0)){
+      stop('If eDNA data are log-normally distributed, non-detections must be accounted for.')
+    }
+
+    if (!is.null(likelihood)){ll.type="custom"}
+
+    # calculate additional hydraulic variables
+    ss <- sort(river$AG$A,index.return=T); ss <- ss$ix
+    q <- numeric(river$AG$nNodes)
+    for (i in 1:river$AG$nNodes) q[i] <- river$AG$discharge[i] - sum(river$AG$discharge[which(river$AG$downNode==i)])
+
+    if (source.area=="AG"){
+      source.area <- river$AG$width*river$AG$leng
+    } else if (source.area=="SC"){source.area <- river$SC$A}
+
+    # Z-normalize covariates
+    if (Z.normalize){
+      for (i in 1:length(covariates)){
+        covariates[,i] <- (covariates[,i]-mean(covariates[,i]))/sd(covariates[,i])
+      }
+    }
+
+    if (is.null(prior)){
+      out <- prepare.prior(covariates, no.det, ll.type, tau.prior, log_p0.prior,
+                           beta.prior, sigma.prior, omega.prior, Cstar.prior)
+      names.par <- out$names.par; allPriors <- out$allPriors
+      lb <- ub <- numeric(0)
+      for (nam in names.par){
+        lb <- c(lb, allPriors[[nam]]$a)
+        ub <- c(ub, allPriors[[nam]]$b)
+      }
+      names(lb) <- names(ub) <- names.par
+
+      density <- function(x){density_generic(x, no.det=no.det, allPriors = allPriors)}
+      sampler <- function(n=1){sampler_generic(n, no.det=no.det, allPriors = allPriors)}
+
+      prior <- createPrior(density = density, sampler = sampler, lower = lb, upper = ub)
+
+  } else {
+    names.par <- names(prior$lower)
   }
 
-  if (!no.det & ll.type =="lnorm" & any(data$values==0)){
-    stop('If eDNA data are log-normally distributed, non-detections must be accounted for.')
-  }
-
-  lb <- ub <- numeric(0)
-  for (nam in names.par){
-    lb <- c(lb, allPriors[[nam]]$a)
-    ub <- c(ub, allPriors[[nam]]$b)
-  }
-  names(lb) <- names(ub) <- names.par
-
-  density <- function(x){density_generic(x, no.det=no.det, allPriors = allPriors)}
-  sampler <- function(n=1){sampler_generic(n, no.det=no.det, allPriors = allPriors)}
-
-  if (is.null(prior)){prior <- createPrior(density = density, sampler = sampler, lower = lb, upper = ub)}
-
-  if(is.null(likelihood)){
-    likelihood <- function(param){likelihood_generic(param, river, ss, source.area, covariates,
-                                                     data, no.det, ll.type)}}
+if(is.null(likelihood)){
+  likelihood <- function(param){likelihood_generic(param, river, ss, source.area, covariates,
+                                                   data, no.det, ll.type)}}
 
   #options(warn=-1) # ignore warnings
 
-  setUp <- createBayesianSetup(likelihood=likelihood,prior=prior, names=names.par)
+  setUp <- createBayesianSetup(likelihood = likelihood, prior = prior, names = names.par)
 
   if (is.null(mcmc.settings)){
-  settings <- list(iterations = 2.7e6, burnin=1.8e6, message = TRUE, thin = 10)
+    settings <- list(iterations = 2.7e6, burnin = 1.8e6, message = TRUE, thin = 10)
   } else {  settings <- mcmc.settings}
 
   outMCMC <- runMCMC(bayesianSetup = setUp, sampler = sampler.type, settings = settings)
@@ -70,14 +80,13 @@ function(data, river, covariates, Z.normalize=TRUE, no.det=TRUE, ll.type="norm",
   gD <- gelmanDiagnostics(outMCMC)
 
 
-  # covariates must be Z-normalized!
-  tau_map <- map$parametersMAP["tau"]*3600
+  tau_map <- map$parametersMAP["tau"]*3600 # in seconds
   p0_map <- 10^map$parametersMAP["log_p0"]
   beta_map <- map$parametersMAP[grep("beta_",names(map$parametersMAP))]
   p_map <- p0_map*exp(as.numeric(as.matrix(covariates) %*% as.matrix(beta_map)))
   C_map <- evalConc2_cpp(river,ss,source.area,tau_map,p_map,"AG")
 
-  local_expected_C <- p_map*source.area*exp(-river$AG$leng/river$AG$velocity/tau_map/3600)/q
+  local_expected_C <- p_map*source.area*exp(-river$AG$leng/river$AG$velocity/tau_map)/q
 
   if (ll.type=="norm") {
     probDetection <- 1 - pnorm(0, mean = local_expected_C, sd = map$parametersMAP[["sigma"]])
@@ -85,16 +94,18 @@ function(data, river, covariates, Z.normalize=TRUE, no.det=TRUE, ll.type="norm",
     probDetection <- 1 - plnorm(0, meanlog =  log(local_expected_C^2/sqrt(map$parametersMAP["sigma"]^2 + local_expected_C^2)),
                                 sdlog = sqrt(log(map$parametersMAP["sigma"]^2/local_expected_C^2 + 1)))
   } else if (ll.type=="nbinom"){
-  probDetection <- 1 - pnbinom(0, size = local_expected_C/(map$parametersMAP[["omega"]]-1),
-                               prob = 1/map$parametersMAP[["omega"]])
-  }
+    probDetection <- 1 - pnbinom(0, size = local_expected_C/(map$parametersMAP[["omega"]]-1),
+                                 prob = 1/map$parametersMAP[["omega"]])
+  } else {probDetection = numeric(0)}
 
-  out <- list(p_map=p_map, C_map=C_map,
+  if (no.det) probDetection <- probDetection*(1-exp(-local_expected_C/map$parametersMAP["Cstar"]))
+
+  out <- list(p_map = p_map, C_map = C_map,
               param_map = map$parametersMAP,
               probDet_map = probDetection,
               ll.type=ll.type, no.det=no.det, cI=cI, gD=gD, data=data,
               covariates = covariates, source.area = source.area,
-              outMCMC=outMCMC) # this is biggish (OK with thinning)
+              outMCMC = outMCMC) # this is biggish (OK with thinning)
 
   invisible(out)
 }

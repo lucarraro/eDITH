@@ -8,9 +8,9 @@ Add description
 }
 
 \usage{
-run_eDITH_BT(data, river, covariates, Z.normalize = TRUE, no.det = TRUE, 
-ll.type = "norm", source.area="AG",
-    mcmc.settings = NULL, likelihood = NULL, prior = NULL, sampler.type = "DREAMzs", 
+run_eDITH_BT(data, river, covariates, Z.normalize = TRUE, no.det = TRUE,
+	ll.type = "norm", source.area = "AG", mcmc.settings = NULL, 
+    likelihood = NULL, prior = NULL, sampler.type = "DREAMzs", 
 	tau.prior = list(spec = "lnorm", a = 0, b = Inf, meanlog = log(5), 
 		sd = sqrt(log(5) - log(4))), 
 	log_p0.prior = list(spec = "unif", min = -20, max = 0), 
@@ -41,7 +41,8 @@ ll.type = "norm", source.area="AG",
   \item{mcmc.settings}{List. It is passed as argument \code{settings} in \code{\link{runMCMC}}. Default is 
   \code{list(iterations = 2.7e6, burnin=1.8e6, message = TRUE, thin = 10).}}
   \item{likelihood}{Likelihood function to be passed as \code{likelihood} argument to \code{\link{createBayesianSetup}}.
-  If not specified, it is generated based on arguments \code{no.det} and \code{ll.type}.}
+  If not specified, it is generated based on arguments \code{no.det} and \code{ll.type}. If a custom likelihood is specified, 
+  a custom \code{prior} must also be specified.}
   \item{prior}{Prior function to be passed as \code{prior} argument to \code{\link{createBayesianSetup}}.
   If not specified, it is generated based on the \code{*.prior} arguments provided.}
   \item{sampler.type}{Character. It is passed as argument \code{sampler} in \code{\link{runMCMC}}.}
@@ -73,13 +74,16 @@ estimate \code{param_map}. It has length equal to \code{river$AG$nNodes}.}
 \item{C_map}{Vector of best-fit eDNA values (in the same unit as \code{data$values}, i.e. concentrations or read numbers) 
 corresponding to the maximum a posteriori parameter  estimate \code{param_map}. It has length equal to \code{river$AG$nNodes}.}
 \item{probDet_map}{Vector of best-fit detection probabilities corresponding to the maximum a posteriori
-parameter estimate \code{param_map}. It has length equal to \code{river$AG$nNodes}.}
+parameter estimate \code{param_map}. It has length equal to \code{river$AG$nNodes}. If a custom \code{likelihood} is provided,
+this is a vector of null length (in which case the user should calculate the probability of detection independently, based on
+the chosen likelihood).}
 \item{cI}{Output of the call to \code{\link{getCredibleIntervals}}.}
 \item{gD}{Output of the call to \code{\link{gelmanDiagnostics}}.}
 \item{covariates}{Data frame containing input covariate values (possibly Z-normalized).}
 \item{source.area}{Vector of source area values.}
 \item{outMCMC}{Object of class \code{mcmcSampler} returned by the call to \code{\link{runMCMC}}.} 
-Moreover, arguments \code{ll.type}, \code{no.det} and \code{data} are added to the list.
+Moreover, arguments \code{ll.type} (possibly changed to \code{"custom"} if a custom likelihood is specified), \code{no.det} 
+and \code{data} are added to the list.
 }
 
 
