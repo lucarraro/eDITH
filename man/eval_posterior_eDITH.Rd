@@ -4,7 +4,7 @@
 \title{Evaluate posterior predictions from an eDITH run}
 
 \description{
-Add description
+Function that evaluates relevant quantities from a posterior sample of the parameters of an eDITH model
 }
 
 \usage{

@@ -4,7 +4,7 @@
 \title{Run eDITH}
 
 \description{
-Add description
+Function that runs a Bayesian sampler estimating parameters of an eDITH model 
 }
 
 \usage{
