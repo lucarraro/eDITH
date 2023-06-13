@@ -17,9 +17,7 @@ posterior_pred_sim_eDITH <- function(x, river, nParamSets = 10000,
     s <- sample(sample.length, 1)
     param <- mcmc.sample[s, ]
     tau <- param["tau"]*3600
-    p0 <- 10^param["log_p0"]
-    beta <- param[grep("beta_",names(x$param_map))]
-    p <- p0*exp(as.numeric(as.matrix(x$covariates) %*% as.matrix(beta)))
+    p <- eval.p(param, x$covariates)
     C <- evalConc2_cpp(river, ss, x$source.area, tau, p, "AG")
     for (j in 1:nDrawsPerParamSet){
       if (x$ll.type=="norm"){

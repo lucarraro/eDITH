@@ -8,7 +8,7 @@ Function that runs a Bayesian sampler estimating parameters of an eDITH model
 }
 
 \usage{
-run_eDITH_BT(data, river, covariates, Z.normalize = TRUE, no.det = TRUE,
+run_eDITH_BT(data, river, covariates = NULL, Z.normalize = TRUE, no.det = TRUE,
 	ll.type = "norm", source.area = "AG", mcmc.settings = NULL, 
     likelihood = NULL, prior = NULL, sampler.type = "DREAMzs", 
 	tau.prior = list(spec = "lnorm", a = 0, b = Inf, meanlog = log(5), 
@@ -28,7 +28,8 @@ run_eDITH_BT(data, river, covariates, Z.normalize = TRUE, no.det = TRUE,
   the eDNA sample was taken) and \code{values} (value of the eDNA measurement, expressed as concentration
   or number of reads). }
   \item{river}{A \code{river} object generated via \code{\link{aggregate_river}}.}
-  \item{covariates}{Data frame containing covariate values for all \code{river} reaches.}
+  \item{covariates}{Data frame containing covariate values for all \code{river} reaches. If \code{NULL} (default
+  option), production rates are estimated independently for each \code{river} reach.}
   \item{Z.normalize}{Logical. Should covariates be Z-normalized?}
   \item{no.det}{Logical. Should a probability of non-detection be included in the model?}
   \item{ll.type}{Character. String defining the error distribution used in the log-likelihood formulation. 
@@ -47,8 +48,9 @@ run_eDITH_BT(data, river, covariates, Z.normalize = TRUE, no.det = TRUE,
   If not specified, it is generated based on the \code{*.prior} arguments provided.}
   \item{sampler.type}{Character. It is passed as argument \code{sampler} in \code{\link{runMCMC}}.}
   \item{tau.prior}{List that defines the prior distribution for the decay time parameter \code{tau}. See details. }
-  \item{log_p0.prior}{List that defines the prior distribution for the natural logarithm of the baseline production rate 
-  \code{p0}.  See details.}
+  \item{log_p0.prior}{List that defines the prior distribution for the logarithm (in base 10) of the baseline production rate 
+  \code{p0}.  See details. If \code{covariates = NULL}, this defines the prior distribution for the logarithm (in base 10) of 
+  production rates for all \code{river} reaches.}
   \item{beta.prior}{List that defines the prior distribution for the covariate effects \code{beta}. See details. If a single 
   \code{spec} is provided, the same prior distribution is specified for all \code{beta} parameters. Alternatively, if 
   \code{spec} (and the other arguments, if provided) is a vector with length equal to the number of covariates included, 

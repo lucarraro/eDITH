@@ -17,9 +17,7 @@ eval_posterior_eDITH <- function(x, river){
 
   for (r in 1:dim(mcmc.sample)[1]){
     tau <- mcmc.sample[r,"tau"]*3600
-    p0 <- 10^mcmc.sample[r,"log_p0"]
-    beta <- mcmc.sample[r,grep("beta_",names(x$param_map))]
-    p <- p0*exp(as.numeric(as.matrix(x$covariates) %*% as.matrix(beta)))
+    p <- eval.p(mcmc.sample[r, ], x$covariates)
     C <- evalConc2_cpp(river, ss, x$source.area, tau, p, "AG")
 
     p_mat[r, ] <- p

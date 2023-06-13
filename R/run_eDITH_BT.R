@@ -1,5 +1,5 @@
 run_eDITH_BT <-
-  function(data, river, covariates, Z.normalize = TRUE, no.det = TRUE,
+  function(data, river, covariates = NULL, Z.normalize = TRUE, no.det = TRUE,
            ll.type = "norm", source.area = "AG", mcmc.settings = NULL,
            likelihood = NULL, prior = NULL, sampler.type = "DREAMzs",
            #tau.prior = list(spec="norm",a=0,b=Inf, mean=5, sd=2),
@@ -20,6 +20,10 @@ run_eDITH_BT <-
 
     if (!is.null(likelihood)){ll.type="custom"}
 
+    if (is.null(covariates)){
+      message(sprintf("Covariates not specified. Production rates will be estimated
+                      independently for the %d reaches. \n",river$AG$nNodes),appendLF=F)}
+
     # calculate additional hydraulic variables
     ss <- sort(river$AG$A,index.return=T); ss <- ss$ix
     q <- numeric(river$AG$nNodes)
@@ -30,7 +34,7 @@ run_eDITH_BT <-
     } else if (source.area=="SC"){source.area <- river$SC$A}
 
     # Z-normalize covariates
-    if (Z.normalize){
+    if (Z.normalize & !is.null(covariates)){
       for (i in 1:length(covariates)){
         covariates[,i] <- (covariates[,i]-mean(covariates[,i]))/sd(covariates[,i])
       }
@@ -38,7 +42,7 @@ run_eDITH_BT <-
 
     if (is.null(prior)){
       out <- prepare.prior(covariates, no.det, ll.type, tau.prior, log_p0.prior,
-                           beta.prior, sigma.prior, omega.prior, Cstar.prior)
+                           beta.prior, sigma.prior, omega.prior, Cstar.prior, river$AG$nNodes)
       names.par <- out$names.par; allPriors <- out$allPriors
       lb <- ub <- numeric(0)
       for (nam in names.par){
@@ -79,11 +83,8 @@ if(is.null(likelihood)){
   colnames(cI) <- c(names.par,"logpost","loglik","prior")
   gD <- gelmanDiagnostics(outMCMC)
 
-
   tau_map <- map$parametersMAP["tau"]*3600 # in seconds
-  p0_map <- 10^map$parametersMAP["log_p0"]
-  beta_map <- map$parametersMAP[grep("beta_",names(map$parametersMAP))]
-  p_map <- p0_map*exp(as.numeric(as.matrix(covariates) %*% as.matrix(beta_map)))
+  p_map <- eval.p(map$parametersMAP, covariates)
   C_map <- evalConc2_cpp(river,ss,source.area,tau_map,p_map,"AG")
 
   local_expected_C <- p_map*source.area*exp(-river$AG$leng/river$AG$velocity/tau_map)/q
@@ -151,7 +152,7 @@ sampler_generic = function(n=1, no.det=TRUE, allPriors){
 
 likelihood_generic <- function(param, river, ss, source.area, covariates, data, no.det=FALSE, ll.type="norm"){
 
-  p <- 10^param["log_p0"]*exp(as.numeric(as.matrix(covariates) %*% as.matrix(param[grep("beta_",names(param))])))
+  p <- eval.p(param, covariates)
   ConcMod <- evalConc2_cpp(river, ss, source.area, param["tau"]*3600, p, "AG")
 
   if (no.det){
@@ -189,8 +190,9 @@ likelihood_generic <- function(param, river, ss, source.area, covariates, data, 
 
 
 prepare.prior <- function(covariates, no.det, ll.type, tau.prior, log_p0.prior,
-                          beta.prior, sigma.prior, omega.prior, Cstar.prior){
+                          beta.prior, sigma.prior, omega.prior, Cstar.prior, nNodes){
 
+  if (!is.null(covariates)){
   names.beta <- paste0("beta_",names(covariates))
   if (ll.type=="nbinom"){
     names.par <- c("tau","log_p0",names.beta,"omega")
@@ -225,9 +227,25 @@ prepare.prior <- function(covariates, no.det, ll.type, tau.prior, log_p0.prior,
     eval(parse(text=paste0('allPriors[["',nam,'"]] <- ',nam,'.prior')))
   }
 
+  } else {
+    names.p <- character(nNodes)
+    for (ind in 1:nNodes) names.p[ind] <- paste0("log.p",ind)
+    names.par <- c("tau", names.p)
+
+    # assign boundaries and copy to allPriors
+    allPriors <- list()
+    tau.prior <- set_boundaries(tau.prior)
+    allPriors[["tau"]] <- tau.prior
+    for (nam in names.par[-1]){
+      eval(parse(text=paste0(nam,".prior <- set_boundaries(log_p0.prior)")))
+      eval(parse(text=paste0('allPriors[["',nam,'"]] <- ',nam,'.prior')))
+    }
+  }
+
   out <- list(names.par=names.par, allPriors=allPriors)
   invisible(out)
 }
+
 
 prepare.list.density <- function(x, param, ConcMod, ll.type){
   list_density <- list(x=x, spec=ll.type)
@@ -245,4 +263,13 @@ prepare.list.density <- function(x, param, ConcMod, ll.type){
     list_density[["a"]] <- -Inf # otherwise 0 is excluded from the distribution
   }
   invisible(list_density)
+}
+
+eval.p <- function(param, covariates){
+ if (!is.null(covariates)){
+   p <- 10^param["log_p0"]*exp(as.numeric(as.matrix(covariates) %*% as.matrix(param[grep("beta_",names(param))])))
+ } else {
+   p <- 10^param[grep("log.p",param)]
+ }
+invisible(p)
 }
