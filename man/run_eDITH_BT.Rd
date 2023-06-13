@@ -8,7 +8,7 @@ Function that runs a Bayesian sampler estimating parameters of an eDITH model
 }
 
 \usage{
-run_eDITH_BT(data, river, covariates = NULL, Z.normalize = TRUE, no.det = TRUE,
+run_eDITH_BT(data, river, covariates = NULL, Z.normalize = TRUE, no.det = FALSE,
 	ll.type = "norm", source.area = "AG", mcmc.settings = NULL, 
     likelihood = NULL, prior = NULL, sampler.type = "DREAMzs", 
 	tau.prior = list(spec = "lnorm", a = 0, b = Inf, meanlog = log(5), 

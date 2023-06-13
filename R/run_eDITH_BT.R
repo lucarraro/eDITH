@@ -1,5 +1,5 @@
 run_eDITH_BT <-
-  function(data, river, covariates = NULL, Z.normalize = TRUE, no.det = TRUE,
+  function(data, river, covariates = NULL, Z.normalize = TRUE, no.det = FALSE,
            ll.type = "norm", source.area = "AG", mcmc.settings = NULL,
            likelihood = NULL, prior = NULL, sampler.type = "DREAMzs",
            #tau.prior = list(spec="norm",a=0,b=Inf, mean=5, sd=2),
