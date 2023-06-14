@@ -2,7 +2,6 @@ run_eDITH_BT <-
   function(data, river, covariates = NULL, Z.normalize = TRUE, no.det = FALSE,
            ll.type = "norm", source.area = "AG", mcmc.settings = NULL,
            likelihood = NULL, prior = NULL, sampler.type = "DREAMzs",
-           #tau.prior = list(spec="norm",a=0,b=Inf, mean=5, sd=2),
            tau.prior = list(spec="lnorm",a=0,b=Inf, meanlog=log(5), sd=sqrt(log(5)-log(4))),
            log_p0.prior = list(spec="unif",min=-20, max=0),
            beta.prior = list(spec="norm",sd=1),
@@ -56,60 +55,60 @@ run_eDITH_BT <-
 
       prior <- createPrior(density = density, sampler = sampler, lower = lb, upper = ub)
 
-  } else {
-    names.par <- names(prior$lower)
+    } else {
+      names.par <- names(prior$lower)
+    }
+
+    if(is.null(likelihood)){
+      likelihood <- function(param){likelihood_generic(param, river, ss, source.area, covariates,
+                                                       data, no.det, ll.type)}}
+
+    #options(warn=-1) # ignore warnings
+
+    setUp <- createBayesianSetup(likelihood = likelihood, prior = prior, names = names.par)
+
+    if (is.null(mcmc.settings)){
+      settings <- list(iterations = 2.7e6, burnin = 1.8e6, message = TRUE, thin = 10)
+    } else {  settings <- mcmc.settings}
+
+    outMCMC <- runMCMC(bayesianSetup = setUp, sampler = sampler.type, settings = settings)
+    map <- MAP(outMCMC)
+    chains <- outMCMC$chain[[1]]
+    n.chains <- length(outMCMC$chain)
+    if (n.chains > 1){
+      for (ind in 2:n.chains){ chains <- rbind(chains, outMCMC$chain[[ind]])}
+    }
+    cI <- getCredibleIntervals(chains)
+    colnames(cI) <- c(names.par,"logpost","loglik","prior")
+    gD <- gelmanDiagnostics(outMCMC)
+
+    tau_map <- map$parametersMAP["tau"]*3600 # in seconds
+    p_map <- eval.p(map$parametersMAP, covariates)
+    C_map <- evalConc2_cpp(river,ss,source.area,tau_map,p_map,"AG")
+
+    local_expected_C <- p_map*source.area*exp(-river$AG$leng/river$AG$velocity/tau_map)/q
+
+    if (ll.type=="norm") {
+      probDetection <- 1 - pnorm(0, mean = local_expected_C, sd = map$parametersMAP[["sigma"]])
+    } else if (ll.type=="lnorm"){
+      probDetection <- 1 - plnorm(0, meanlog =  log(local_expected_C^2/sqrt(map$parametersMAP["sigma"]^2 + local_expected_C^2)),
+                                  sdlog = sqrt(log(map$parametersMAP["sigma"]^2/local_expected_C^2 + 1)))
+    } else if (ll.type=="nbinom"){
+      probDetection <- 1 - pnbinom(0, size = local_expected_C/(map$parametersMAP[["omega"]]-1),
+                                   prob = 1/map$parametersMAP[["omega"]])
+    } else {probDetection = numeric(0)}
+
+    if (no.det) probDetection <- probDetection*(1-exp(-local_expected_C/map$parametersMAP["Cstar"]))
+
+    out <- list(p_map = p_map, C_map = C_map,
+                param_map = map$parametersMAP,
+                probDet_map = probDetection,
+                ll.type=ll.type, no.det=no.det, cI=cI, gD=gD, data=data,
+                covariates = covariates, source.area = source.area,
+                outMCMC = outMCMC) # this is biggish (OK with thinning)
+
+    invisible(out)
   }
-
-if(is.null(likelihood)){
-  likelihood <- function(param){likelihood_generic(param, river, ss, source.area, covariates,
-                                                   data, no.det, ll.type)}}
-
-  #options(warn=-1) # ignore warnings
-
-  setUp <- createBayesianSetup(likelihood = likelihood, prior = prior, names = names.par)
-
-  if (is.null(mcmc.settings)){
-    settings <- list(iterations = 2.7e6, burnin = 1.8e6, message = TRUE, thin = 10)
-  } else {  settings <- mcmc.settings}
-
-  outMCMC <- runMCMC(bayesianSetup = setUp, sampler = sampler.type, settings = settings)
-  map <- MAP(outMCMC)
-  chains <- outMCMC$chain[[1]]
-  n.chains <- length(outMCMC$chain)
-  if (n.chains > 1){
-    for (ind in 2:n.chains){ chains <- rbind(chains, outMCMC$chain[[ind]])}
-  }
-  cI <- getCredibleIntervals(chains)
-  colnames(cI) <- c(names.par,"logpost","loglik","prior")
-  gD <- gelmanDiagnostics(outMCMC)
-
-  tau_map <- map$parametersMAP["tau"]*3600 # in seconds
-  p_map <- eval.p(map$parametersMAP, covariates)
-  C_map <- evalConc2_cpp(river,ss,source.area,tau_map,p_map,"AG")
-
-  local_expected_C <- p_map*source.area*exp(-river$AG$leng/river$AG$velocity/tau_map)/q
-
-  if (ll.type=="norm") {
-    probDetection <- 1 - pnorm(0, mean = local_expected_C, sd = map$parametersMAP[["sigma"]])
-  } else if (ll.type=="lnorm"){
-    probDetection <- 1 - plnorm(0, meanlog =  log(local_expected_C^2/sqrt(map$parametersMAP["sigma"]^2 + local_expected_C^2)),
-                                sdlog = sqrt(log(map$parametersMAP["sigma"]^2/local_expected_C^2 + 1)))
-  } else if (ll.type=="nbinom"){
-    probDetection <- 1 - pnbinom(0, size = local_expected_C/(map$parametersMAP[["omega"]]-1),
-                                 prob = 1/map$parametersMAP[["omega"]])
-  } else {probDetection = numeric(0)}
-
-  if (no.det) probDetection <- probDetection*(1-exp(-local_expected_C/map$parametersMAP["Cstar"]))
-
-  out <- list(p_map = p_map, C_map = C_map,
-              param_map = map$parametersMAP,
-              probDet_map = probDetection,
-              ll.type=ll.type, no.det=no.det, cI=cI, gD=gD, data=data,
-              covariates = covariates, source.area = source.area,
-              outMCMC = outMCMC) # this is biggish (OK with thinning)
-
-  invisible(out)
-}
 
 
 set_boundaries <- function(ll){
@@ -193,40 +192,39 @@ prepare.prior <- function(covariates, no.det, ll.type, tau.prior, log_p0.prior,
                           beta.prior, sigma.prior, omega.prior, Cstar.prior, nNodes){
 
   if (!is.null(covariates)){
-  names.beta <- paste0("beta_",names(covariates))
-  if (ll.type=="nbinom"){
-    names.par <- c("tau","log_p0",names.beta,"omega")
-  } else {
-    names.par <- c("tau","log_p0",names.beta,"sigma")
-  }
-  if (no.det){names.par <- c(names.par,"Cstar")}
-
-  # split beta prior among covariates
-  if(length(beta.prior$spec==1)){
-    for (nam in names.beta){
-      assign(paste0(nam,".prior"),beta.prior)
+    names.beta <- paste0("beta_",names(covariates))
+    if (ll.type=="nbinom"){
+      names.par <- c("tau","log_p0",names.beta,"omega")
+    } else {
+      names.par <- c("tau","log_p0",names.beta,"sigma")
     }
-  } else {
-    if (length(beta.prior$spec)!=length(names.beta)){
-      stop("Number of elements in beta.prior does not match number of covariates")}
-    fieldnames <- names(beta.prior)
-    for (ind in 1:length(names.beta)){
-      nam <- names.beta[ind]
-      foo <- list()
-      for (fn in fieldnames){
-        foo[[fn]] <- beta.prior[[fn]][ind]
+    if (no.det){names.par <- c(names.par,"Cstar")}
+
+    # split beta prior among covariates
+    if(length(beta.prior$spec==1)){
+      for (nam in names.beta){
+        assign(paste0(nam,".prior"),beta.prior)
       }
-      assign(paste0(nam,".prior"),foo)
+    } else {
+      if (length(beta.prior$spec)!=length(names.beta)){
+        stop("Number of elements in beta.prior does not match number of covariates")}
+      fieldnames <- names(beta.prior)
+      for (ind in 1:length(names.beta)){
+        nam <- names.beta[ind]
+        foo <- list()
+        for (fn in fieldnames){
+          foo[[fn]] <- beta.prior[[fn]][ind]
+        }
+        assign(paste0(nam,".prior"),foo)
+      }
     }
-  }
 
-  # assign boundaries and copy to allPriors
-  allPriors <- list()
-  for (nam in names.par){
-    eval(parse(text=paste0(nam,".prior <- set_boundaries(",nam,".prior)")))
-    eval(parse(text=paste0('allPriors[["',nam,'"]] <- ',nam,'.prior')))
-  }
-
+    # assign boundaries and copy to allPriors
+    allPriors <- list()
+    for (nam in names.par){
+      eval(parse(text=paste0(nam,".prior <- set_boundaries(",nam,".prior)")))
+      eval(parse(text=paste0('allPriors[["',nam,'"]] <- ',nam,'.prior')))
+    }
   } else {
     names.p <- character(nNodes)
     for (ind in 1:nNodes) names.p[ind] <- paste0("log.p",ind)
@@ -239,6 +237,15 @@ prepare.prior <- function(covariates, no.det, ll.type, tau.prior, log_p0.prior,
     for (nam in names.par[-1]){
       eval(parse(text=paste0(nam,".prior <- set_boundaries(log_p0.prior)")))
       eval(parse(text=paste0('allPriors[["',nam,'"]] <- ',nam,'.prior')))
+    }
+    if (ll.type=="nbinom"){
+      names.par <- c(names.par,"omega")
+      omega.prior <- set_boundaries(omega.prior)
+      allPriors[["omega"]] <- omega.prior
+    } else {
+      names.par <- c(names.par,"sigma")
+      sigma.prior <- set_boundaries(sigma.prior)
+      allPriors[["sigma"]] <- sigma.prior
     }
   }
 
@@ -266,10 +273,10 @@ prepare.list.density <- function(x, param, ConcMod, ll.type){
 }
 
 eval.p <- function(param, covariates){
- if (!is.null(covariates)){
-   p <- 10^param["log_p0"]*exp(as.numeric(as.matrix(covariates) %*% as.matrix(param[grep("beta_",names(param))])))
- } else {
-   p <- 10^param[grep("log.p",param)]
- }
-invisible(p)
+  if (!is.null(covariates)){
+    p <- 10^param["log_p0"]*exp(as.numeric(as.matrix(covariates) %*% as.matrix(param[grep("beta_",names(param))])))
+  } else {
+    p <- 10^param[grep("log.p",names(param))]
+  }
+  invisible(p)
 }
