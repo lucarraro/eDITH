@@ -149,10 +149,16 @@ sampler_generic = function(n=1, no.det=TRUE, allPriors){
   return(r_comp)
 }
 
-likelihood_generic <- function(param, river, ss, source.area, covariates, data, no.det=FALSE, ll.type="norm"){
+likelihood_generic <- function(param, river, ss, source.area, covariates, data,
+                               no.det=FALSE, ll.type="norm",
+                               tau_min=NULL, tau_max=NULL){
+  if (!is.null(tau_min)){
+  tau <- (tau_min + (tau_max-tau_min)*(param["tau"])/(1+exp(param["tau"])))*3600
+  } else {
+  tau <- param["tau"]*3600}
 
   p <- eval.p(param, covariates)
-  ConcMod <- evalConc2_cpp(river, ss, source.area, param["tau"]*3600, p, "AG")
+  ConcMod <- evalConc2_cpp(river, ss, source.area, tau, p, "AG")
 
   if (no.det){
     phi <- exp(-ConcMod/param["Cstar"])
