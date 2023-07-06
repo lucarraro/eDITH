@@ -82,27 +82,12 @@ run_eDITH_BT <-
     colnames(cI) <- c(names.par,"logpost","loglik","prior")
     gD <- gelmanDiagnostics(outMCMC)
 
-    tau_map <- map$parametersMAP["tau"]*3600 # in seconds
-    p_map <- eval.p(map$parametersMAP, covariates)
-    C_map <- evalConc2_cpp(river,ss,source.area,tau_map,p_map,"AG")
+    tmp <- eval.pC.pD(map$parametersMAP, river, ss, covariates, source.area,
+                      q, ll.type, no.det)
 
-    local_expected_C <- p_map*source.area*exp(-river$AG$leng/river$AG$velocity/tau_map)/q
-
-    if (ll.type=="norm") {
-      probDetection <- 1 - pnorm(0, mean = local_expected_C, sd = map$parametersMAP[["sigma"]])
-    } else if (ll.type=="lnorm"){
-      probDetection <- 1 - plnorm(0, meanlog =  log(local_expected_C^2/sqrt(map$parametersMAP["sigma"]^2 + local_expected_C^2)),
-                                  sdlog = sqrt(log(map$parametersMAP["sigma"]^2/local_expected_C^2 + 1)))
-    } else if (ll.type=="nbinom"){
-      probDetection <- 1 - pnbinom(0, size = local_expected_C/(map$parametersMAP[["omega"]]-1),
-                                   prob = 1/map$parametersMAP[["omega"]])
-    } else {probDetection = numeric(0)}
-
-    if (no.det) probDetection <- probDetection*(1-exp(-local_expected_C/map$parametersMAP["Cstar"]))
-
-    out <- list(p_map = p_map, C_map = C_map,
+    out <- list(p_map = tmp$p, C_map = tmp$C,
+                probDet_map = tmp$probDetection,
                 param_map = map$parametersMAP,
-                probDet_map = probDetection,
                 ll.type=ll.type, no.det=no.det, cI=cI, gD=gD, data=data,
                 covariates = covariates, source.area = source.area,
                 outMCMC = outMCMC) # this is biggish (OK with thinning)
@@ -150,15 +135,17 @@ sampler_generic = function(n=1, no.det=TRUE, allPriors){
 }
 
 likelihood_generic <- function(param, river, ss, source.area, covariates, data,
-                               no.det=FALSE, ll.type="norm",
-                               tau_min=NULL, tau_max=NULL){
-  if (!is.null(tau_min)){
-  tau <- (tau_min + (tau_max-tau_min)*(param["tau"])/(1+exp(param["tau"])))*3600
-  } else {
-  tau <- param["tau"]*3600}
+                               no.det=FALSE, ll.type="norm"){
 
-  p <- eval.p(param, covariates)
-  ConcMod <- evalConc2_cpp(river, ss, source.area, tau, p, "AG")
+  tmp <- eval.pC.pD(param, river, ss, covariates, source.area)
+  ConcMod <- tmp$C
+  # if (!is.null(tau_min)){
+  # tau <- (tau_min + (tau_max-tau_min)*(param["tau"])/(1+exp(param["tau"])))*3600
+  # } else {
+  # tau <- param["tau"]*3600}
+  #
+  # p <- eval.p(param, covariates)
+  # ConcMod <- evalConc2_cpp(river, ss, source.area, tau, p, "AG")
 
   if (no.det){
     phi <- exp(-ConcMod/param["Cstar"])
@@ -285,4 +272,32 @@ eval.p <- function(param, covariates){
     p <- 10^param[grep("log.p",names(param))]
   }
   invisible(p)
+}
+
+eval.pC.pD <- function(param, river, ss, covariates, source.area,
+                       q=NULL,ll.type=NULL, no.det=NULL){
+
+  tau <- param["tau"]*3600
+  p <- eval.p(param, covariates)
+  C <- evalConc2_cpp(river, ss, source.area, tau, p, "AG")
+
+  if (!is.null(ll.type)){
+    local_expected_C <- p*source.area*exp(-river$AG$leng/river$AG$velocity/tau)/q
+    if (ll.type=="norm") {
+      probDetection <- 1 - pnorm(0, mean = local_expected_C, sd = param["sigma"])
+    } else if (ll.type=="lnorm"){
+      probDetection <- 1 - plnorm(0, meanlog =  log(local_expected_C^2/sqrt(param["sigma"]^2 + local_expected_C^2)),
+                                  sdlog = sqrt(log(param["sigma"]^2/local_expected_C^2 + 1)))
+    } else if (ll.type=="nbinom"){
+      probDetection <- 1 - pnbinom(0, size = local_expected_C/(param["omega"]-1),
+                                   prob = 1/param["omega"])
+    } else {probDetection = numeric(0)}
+
+    if (no.det) probDetection <- probDetection*(1-exp(-local_expected_C/param["Cstar"]))
+  }
+
+  out <- list(p=p, C=C, tau=tau/3600)
+  if (!is.null(ll.type)){out[["probDetection"]] <- probDetection}
+
+  invisible(out)
 }

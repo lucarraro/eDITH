@@ -1,8 +1,9 @@
 run_eDITH_optim <-
-  function(data, river, covariates = NULL, Z.normalize = TRUE, no.det = FALSE,
+  function(data, river, covariates, Z.normalize = TRUE, no.det = FALSE,
            ll.type = "norm", source.area = "AG",
-           likelihood = NULL, tau_range = NULL,
-           n.attempts = 100, ...){ # no parallel option for the moment
+           likelihood = NULL,  n.attempts = 100, ...){ # no parallel option for the moment
+                                                       # no covariate-free option!
+                                                       # maybe use AEM when no covariates are given
 
     dots <- list(...) # list of parameters to be passed to optim
     if (is.null(dots$control)) dots$control <- list(fnscale = -1, maxit = 1e6)
@@ -14,9 +15,9 @@ run_eDITH_optim <-
 
     if (!is.null(likelihood)){ll.type="custom"} # doesn't this give errors?
 
-    if (is.null(covariates)){
-      message(sprintf("Covariates not specified. Production rates will be estimated
-                      independently for the %d reaches. \n",river$AG$nNodes),appendLF=F)}
+    # if (is.null(covariates)){
+    #   message(sprintf("Covariates not specified. Production rates will be estimated
+    #                   independently for the %d reaches. \n",river$AG$nNodes),appendLF=F)}
 
     # calculate additional hydraulic variables
     ss <- sort(river$AG$A,index.return=T); ss <- ss$ix
@@ -34,12 +35,6 @@ run_eDITH_optim <-
       }
     }
 
-    # limits on tau (default if covariates=NULL)
-    if (is.null(tau_range) & is.null(covariates)){tau_range <- c(0.1,100)} # enforce limits on tau if no covariates
-    if (!is.null(tau_range)) {
-      tau_min <- tau_range[1]; tau_max <- tau_range[2]
-    } else {tau_min <- tau_max <- NULL}
-
     # default values
     tau.prior = list(spec="lnorm",a=0,b=Inf, meanlog=log(5), sd=sqrt(log(5)-log(4)))
     log_p0.prior = list(spec="unif",min=-20, max=0)
@@ -51,20 +46,19 @@ run_eDITH_optim <-
     out <- eDITH:::prepare.prior(covariates, no.det, ll.type, tau.prior, log_p0.prior,
                          beta.prior, sigma.prior, omega.prior, Cstar.prior, river$AG$nNodes)
     names.par <- out$names.par; allPriors <- out$allPriors
-    lb <- ub  <- numeric(0)
-    for (nam in names.par){
-      lb <- c(lb, allPriors[[nam]]$a)
-      ub <- c(ub, allPriors[[nam]]$b)
-    }
-    names(lb) <- names(ub)  <- names.par
+    # lb <- ub  <- numeric(0)
+    # for (nam in names.par){
+    #   lb <- c(lb, allPriors[[nam]]$a)
+    #   ub <- c(ub, allPriors[[nam]]$b)
+    #}
+    #names(lb) <- names(ub)  <- names.par
 
     if(is.null(likelihood)){ # likelihood_generic is taken from run_eDITH_BT
       likelihood <- function(param){eDITH:::likelihood_generic(param, river,
                                                                ss, source.area,
                                                                covariates,
                                                                data, no.det,
-                                                               ll.type,
-                                                               tau_min, tau_max)}}
+                                                               ll.type)}}
     dots$fn <- likelihood
 
     sampler <- function(n=1){eDITH:::sampler_generic(n,
@@ -77,7 +71,7 @@ run_eDITH_optim <-
       tau_vec[ind] <- out$par["tau"]
       counts[ind] <- out$counts["function"]
       conv[ind] <- out$convergence
-      #if (out$par["tau"]<0) out$value = -Inf # discard solutions with negative tau (unnecessary with logit transf)
+      if (out$par["tau"]<0) out$value = -Inf # discard solutions with negative tau (unnecessary with logit transf)
       ll_end_vec[ind] <- out$value
       if (ind > 1){
         if (ll_end_vec[ind] > max(ll_end_vec[1:(ind-1)])) out_optim <- out
@@ -86,31 +80,14 @@ run_eDITH_optim <-
     }
     message("100% done    \n", appendLF = FALSE)
 
-    # this should all go into a function. pass params, river, ll.type, no.det
-    # if ll.type, no.det not provided, then probDetection is not calculated (?)
 
-    tau <- out_optim$par["tau"]*3600
-    p <- eDITH:::eval.p(out_optim$par, covariates)
-    C <- eDITH:::evalConc2_cpp(river, ss, river$AG$leng*river$AG$width,
-                               tau, p, "AG")
+  tmp <- eval.pC.pD(out_optim$par, river, ss, covariates, source.area,
+                    q, ll.type, no.det)
 
-    local_expected_C <- p*source.area*exp(-river$AG$leng/river$AG$velocity/tau)/q
+  param <- out_optim$par; param["tau"] <- tmp$tau # replace with actual tau (in hours)
 
-    if (ll.type=="norm") {
-      probDetection <- 1 - pnorm(0, mean = local_expected_C, sd = out_optim$par["sigma"])
-    } else if (ll.type=="lnorm"){
-      probDetection <- 1 - plnorm(0, meanlog =  log(local_expected_C^2/sqrt(out_optim$par["sigma"]^2 + local_expected_C^2)),
-                                  sdlog = sqrt(log(out_optim$par["sigma"]^2/local_expected_C^2 + 1)))
-    } else if (ll.type=="nbinom"){
-      probDetection <- 1 - pnbinom(0, size = local_expected_C/(out_optim$par["omega"]-1),
-                                   prob = 1/out_optim$par["omega"])
-    } else {probDetection = numeric(0)}
-
-    if (no.det) probDetection <- probDetection*(1-exp(-local_expected_C/out_optim$par["Cstar"]))
-
-
-  out <- list(p = p, C = C, probDetection = probDetection,
-              param = out_optim$par,
+  out <- list(p = tmp$p, C = tmp$C, probDetection = tmp$probDetection,
+              param = param,
               ll.type=ll.type, no.det=no.det, data=data,
               covariates = covariates, source.area = source.area,
               out_optim = out_optim)
