@@ -57,6 +57,11 @@ run_eDITH_BT <-
 
     } else {
       names.par <- names(prior$lower)
+      if (is.null(names.par)){
+        stop('Missing parameter names in user-defined prior.
+             Ensure that objects "lower" and "upper" of the prior contain parameter names.')
+      }
+
       # re-structure sampler so that it yields parameter names
       sampler_no.name <- prior$sampler
       sampler2 <- function(n=1){ ss <- sampler_no.name(n); colnames(ss) <- names.par; return(ss[1,])}
