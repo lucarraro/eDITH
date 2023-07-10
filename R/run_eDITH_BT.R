@@ -176,7 +176,7 @@ likelihood_generic <- function(param, river, ss, source.area, covariates, data,
     sites_det <- data$ID
   }
 
-  if (ll.type=="nbinom"){
+  if (ll.type=="nbinom" | ll.type=="geom"){
     y <- round(data$values[sites_data_det])
   } else {y <- data$values[sites_data_det]}
 
@@ -195,7 +195,9 @@ prepare.prior <- function(covariates, no.det, ll.type, tau.prior, log_p0.prior,
 
   if (!is.null(covariates)){
     names.beta <- paste0("beta_",names(covariates))
-    if (ll.type=="nbinom"){
+    if (ll.type=="geom"){
+      names.par <- c("tau","log_p0",names.beta)
+    } else if (ll.type=="nbinom"){
       names.par <- c("tau","log_p0",names.beta,"omega")
     } else {
       names.par <- c("tau","log_p0",names.beta,"sigma")
@@ -270,6 +272,9 @@ prepare.list.density <- function(x, param, ConcMod, ll.type){
     list_density[["size"]] <- ConcMod/(param["omega"]-1)
     list_density[["prob"]] <- 1/param["omega"]
     list_density[["a"]] <- -Inf # otherwise 0 is excluded from the distribution
+  } else if (ll.type=="geom"){
+    list_density[["prob"]] <- 1/(1+ConcMod)
+    list_density[["a"]] <- -Inf # otherwise 0 is excluded from the distribution
   }
   invisible(list_density)
 }
@@ -292,7 +297,9 @@ eval.pC.pD <- function(param, river, ss, covariates, source.area,
 
   if (!is.null(ll.type)){
     local_expected_C <- p*source.area*exp(-river$AG$leng/river$AG$velocity/tau)/q
-    if (ll.type=="norm") {
+    if (ll.type=="geom"){
+      probDetection <- pgeom(0, prob = 1/(1+local_expected_C))
+    } else if (ll.type=="norm") {
       probDetection <- 1 - pnorm(0, mean = local_expected_C, sd = param["sigma"])
     } else if (ll.type=="lnorm"){
       probDetection <- 1 - plnorm(0, meanlog =  log(local_expected_C^2/sqrt(param["sigma"]^2 + local_expected_C^2)),
