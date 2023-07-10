@@ -57,6 +57,10 @@ run_eDITH_BT <-
 
     } else {
       names.par <- names(prior$lower)
+      # re-structure sampler so that it yields parameter names
+      sampler_no.name <- prior$sampler
+      sampler2 <- function(n=1){ ss <- sampler_no.name(n); colnames(ss) <- names.par; return(ss[1,])}
+      prior <- createPrior(density = prior$density, sampler = sampler2, lower = prior$lower, upper = prior$upper)
     }
 
     if(is.null(likelihood)){
