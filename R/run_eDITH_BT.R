@@ -1,7 +1,8 @@
 run_eDITH_BT <-
-  function(data, river, covariates = NULL, Z.normalize = TRUE, no.det = FALSE,
-           ll.type = "norm", source.area = "AG", mcmc.settings = NULL,
-           likelihood = NULL, prior = NULL, sampler.type = "DREAMzs",
+  function(data, river, covariates = NULL, Z.normalize = TRUE,
+           use.AEM = FALSE, n.AEM = NULL, par.AEM = NULL,
+           no.det = FALSE, ll.type = "norm", source.area = "AG",
+           mcmc.settings = NULL, likelihood = NULL, prior = NULL, sampler.type = "DREAMzs",
            tau.prior = list(spec="lnorm",a=0,b=Inf, meanlog=log(5), sd=sqrt(log(5)-log(4))),
            log_p0.prior = list(spec="unif",min=-20, max=0),
            beta.prior = list(spec="norm",sd=1),
@@ -20,8 +21,18 @@ run_eDITH_BT <-
     if (!is.null(likelihood)){ll.type="custom"}
 
     if (is.null(covariates)){
+      use.AEM <- TRUE
+      if (is.null(n.AEM)){n.AEM <- round(0.1*river$AG$nNodes)}
       message(sprintf("Covariates not specified. Production rates will be estimated
-                      independently for the %d reaches. \n",river$AG$nNodes),appendLF=F)}
+                      based on the first n.AEM = %d AEMs. \n",n.AEM),appendLF=F)}
+
+    if (use.AEM){
+      par.AEM$river <- river
+      out <- do.call(river_to_AEM, par.AEM)
+      cov.AEM <- data.frame(out$vectors[,1:n.AEM])
+      names(cov.AEM) <- paste0("AEM",1:n.AEM)
+      covariates <- data.frame(c(covariates, cov.AEM))
+    }
 
     # calculate additional hydraulic variables
     ss <- sort(river$AG$A,index.return=T); ss <- ss$ix

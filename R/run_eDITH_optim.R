@@ -1,13 +1,11 @@
 run_eDITH_optim <-
-  function(data, river, covariates, Z.normalize = TRUE, no.det = FALSE,
-           ll.type = "norm", source.area = "AG",
-           likelihood = NULL,  n.attempts = 100, ...){ # no parallel option for the moment
-                                                       # no covariate-free option!
-                                                       # maybe use AEM when no covariates are given
+  function(data, river, covariates = NULL, Z.normalize = TRUE,
+           use.AEM = FALSE, n.AEM = NULL, par.AEM = NULL,
+           no.det = FALSE, ll.type = "norm", source.area = "AG",
+           likelihood = NULL,  n.attempts = 100, par.optim = NULL){ # no parallel option for the moment
 
-    dots <- list(...) # list of parameters to be passed to optim
-    if (is.null(dots$control)) dots$control <- list(fnscale = -1, maxit = 1e6)
-    if (is.null(dots$control$fnscale)) dots$control$fnscale <- -1
+    if (is.null(par.optim$control)) par.optim$control <- list(fnscale = -1, maxit = 1e6)
+    if (is.null(par.optim$control$fnscale)) par.optim$control$fnscale <- -1
 
     if (!no.det & ll.type =="lnorm" & any(data$values==0)){
       stop('If eDNA data are log-normally distributed, non-detections must be accounted for.')
@@ -15,9 +13,19 @@ run_eDITH_optim <-
 
     if (!is.null(likelihood)){ll.type="custom"} # doesn't this give errors?
 
-    # if (is.null(covariates)){
-    #   message(sprintf("Covariates not specified. Production rates will be estimated
-    #                   independently for the %d reaches. \n",river$AG$nNodes),appendLF=F)}
+    if (is.null(covariates)){
+      use.AEM <- TRUE
+      if (is.null(n.AEM)){n.AEM <- round(0.1*river$AG$nNodes)}
+      message(sprintf("Covariates not specified. Production rates will be estimated
+                      based on the first n.AEM = %d AEMs. \n",n.AEM),appendLF=F)}
+
+    if (use.AEM){
+      par.AEM$river <- river
+      out <- do.call(river_to_AEM, par.AEM)
+      cov.AEM <- data.frame(out$vectors[,1:n.AEM])
+      names(cov.AEM) <- paste0("AEM",1:n.AEM)
+      covariates <- data.frame(c(covariates, cov.AEM))
+    }
 
     # calculate additional hydraulic variables
     ss <- sort(river$AG$A,index.return=T); ss <- ss$ix
@@ -44,7 +52,7 @@ run_eDITH_optim <-
     Cstar.prior = list(spec="unif",min=0, max=1*max(data$values, na.rm = TRUE))
 
     out <- eDITH:::prepare.prior(covariates, no.det, ll.type, tau.prior, log_p0.prior,
-                         beta.prior, sigma.prior, omega.prior, Cstar.prior, river$AG$nNodes)
+                                 beta.prior, sigma.prior, omega.prior, Cstar.prior, river$AG$nNodes)
     names.par <- out$names.par; allPriors <- out$allPriors
     # lb <- ub  <- numeric(0)
     # for (nam in names.par){
@@ -59,15 +67,15 @@ run_eDITH_optim <-
                                                                covariates,
                                                                data, no.det,
                                                                ll.type)}}
-    dots$fn <- likelihood
+    par.optim$fn <- likelihood
 
     sampler <- function(n=1){eDITH:::sampler_generic(n,
                                                      no.det=no.det,
                                                      allPriors = allPriors)}
     ll_end_vec <- counts <- conv <- tau_vec <-  numeric(n.attempts)
     for (ind in 1:n.attempts){
-      dots$par <- sampler(1)
-      out <- suppressWarnings(do.call(optim, dots))
+      par.optim$par <- sampler(1)
+      out <- suppressWarnings(do.call(optim, par.optim))
       tau_vec[ind] <- out$par["tau"]
       counts[ind] <- out$counts["function"]
       conv[ind] <- out$convergence
@@ -76,23 +84,23 @@ run_eDITH_optim <-
       if (ind > 1){
         if (ll_end_vec[ind] > max(ll_end_vec[1:(ind-1)])) out_optim <- out
       } else {out_optim <- out}
-        message(sprintf("%.2f%% done \r", ind/n.attempts*100), appendLF = FALSE)
+      message(sprintf("%.2f%% done \r", ind/n.attempts*100), appendLF = FALSE)
     }
     message("100% done    \n", appendLF = FALSE)
 
 
-  tmp <- eval.pC.pD(out_optim$par, river, ss, covariates, source.area,
-                    q, ll.type, no.det)
+    tmp <- eval.pC.pD(out_optim$par, river, ss, covariates, source.area,
+                      q, ll.type, no.det)
 
-  param <- out_optim$par; param["tau"] <- tmp$tau # replace with actual tau (in hours)
+    param <- out_optim$par; param["tau"] <- tmp$tau # replace with actual tau (in hours)
 
-  out <- list(p = tmp$p, C = tmp$C, probDetection = tmp$probDetection,
-              param = param,
-              ll.type=ll.type, no.det=no.det, data=data,
-              covariates = covariates, source.area = source.area,
-              out_optim = out_optim)
+    out <- list(p = tmp$p, C = tmp$C, probDetection = tmp$probDetection,
+                param = param,
+                ll.type=ll.type, no.det=no.det, data=data,
+                covariates = covariates, source.area = source.area,
+                out_optim = out_optim)
 
-  invisible(out)
+    invisible(out)
 
   }
 
