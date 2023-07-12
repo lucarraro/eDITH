@@ -50,7 +50,8 @@ run_eDITH_BT(data, river, covariates = NULL, Z.normalize = TRUE,
   If not specified, it is generated based on arguments \code{no.det} and \code{ll.type}. If a custom likelihood is specified, 
   a custom \code{prior} must also be specified.}
   \item{prior}{Prior function to be passed as \code{prior} argument to \code{\link{createBayesianSetup}}.
-  If not specified, it is generated based on the \code{*.prior} arguments provided.}
+  If not specified, it is generated based on the \code{*.prior} arguments provided. If a user-defined prior is provided,
+  parameter names must be included in \code{prior$lower}, \code{prior$upper} (see example).}
   \item{sampler.type}{Character. It is passed as argument \code{sampler} in \code{\link{runMCMC}}.}
   \item{tau.prior}{List that defines the prior distribution for the decay time parameter \code{tau}. See details. }
   \item{log_p0.prior}{List that defines the prior distribution for the logarithm (in base 10) of the baseline production rate 
