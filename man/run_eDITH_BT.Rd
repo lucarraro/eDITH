@@ -1,26 +1,25 @@
 \name{run_eDITH_BT}
 \alias{run_eDITH_BT}
 
-\title{Run eDITH}
+\title{Run eDITH with BayesianTools}
 
 \description{
 Function that runs a Bayesian sampler estimating parameters of an eDITH model 
 }
 
 \usage{
-run_eDITH_BT(data, river, covariates = NULL, Z.normalize = TRUE, no.det = FALSE,
-	ll.type = "norm", source.area = "AG", mcmc.settings = NULL, 
-    likelihood = NULL, prior = NULL, sampler.type = "DREAMzs", 
-	tau.prior = list(spec = "lnorm", a = 0, b = Inf, meanlog = log(5), 
-		sd = sqrt(log(5) - log(4))), 
-	log_p0.prior = list(spec = "unif", min = -20, max = 0), 
-	beta.prior = list(spec = "norm", sd = 1), 
-	sigma.prior = list(spec = "unif", min = 0, 
-		max = max(data$values, na.rm = TRUE)), 
-	omega.prior = list(spec = "unif", min = 1, 
-		max = 10 * max(data$values, na.rm = TRUE)), 
-	Cstar.prior = list(spec = "unif", min = 0, 
-		max = max(data$values, na.rm = TRUE)))
+run_eDITH_BT(data, river, covariates = NULL, Z.normalize = TRUE,
+           use.AEM = FALSE, n.AEM = NULL, par.AEM = NULL,
+           no.det = FALSE, ll.type = "norm", source.area = "AG",
+           mcmc.settings = NULL, likelihood = NULL, 
+		   prior = NULL, sampler.type = "DREAMzs",
+           tau.prior = list(spec = "lnorm", a = 0, b = Inf, 
+			meanlog = log(5), sd = sqrt(log(5) - log(4))),
+           log_p0.prior = list(spec="unif",min=-20, max=0),
+           beta.prior = list(spec="norm",sd=1),
+           sigma.prior = list(spec="unif",min=0, max=max(data$values, na.rm = TRUE)),
+           omega.prior = list(spec="unif",min=1, max=10*max(data$values, na.rm = TRUE)),
+           Cstar.prior = list(spec="unif",min=0, max=max(data$values, na.rm = TRUE)))
 }
 
 \arguments{
@@ -29,13 +28,19 @@ run_eDITH_BT(data, river, covariates = NULL, Z.normalize = TRUE, no.det = FALSE,
   or number of reads). }
   \item{river}{A \code{river} object generated via \code{\link{aggregate_river}}.}
   \item{covariates}{Data frame containing covariate values for all \code{river} reaches. If \code{NULL} (default
-  option), production rates are estimated independently for each \code{river} reach.}
+  option), production rates are estimated via AEMs.}
   \item{Z.normalize}{Logical. Should covariates be Z-normalized?}
+  \item{use.AEM}{Logical. Should eigenvectors based on AEMs be used as covariates? If \code{covariates = NULL}, it is 
+  set to \code{TRUE}. If \code{TRUE} and \code{covariates} are provided, \code{n.AEM} eigenvectors are appended to the 
+  \code{covariates} data frame.}
+   \item{n.AEM}{Number of AEM eigenvectors (sorted by the decreasing respective eigenvalue) to be used as covariates.}
+  \item{par.AEM}{List of additional parameters that are passed to \code{\link{river_to_AEM}} for calculation of AEMs.}
   \item{no.det}{Logical. Should a probability of non-detection be included in the model?}
   \item{ll.type}{Character. String defining the error distribution used in the log-likelihood formulation. 
   Allowed values are \code{norm} (for normal distribution), \code{lnorm} (for lognormal distribution), 
-  \code{nbinom} (for negative binomial distribution). The latter choice is suited when eDNA data are 
-  expressed as read numbers, while \code{norm} and \code{lnorm} are better suited to eDNA concentrations. }
+  \code{nbinom} (for negative binomial distribution) and \code{geom} (for geometric distribution). The two latter choices 
+  are suited when eDNA data are expressed as read numbers, while \code{norm} and \code{lnorm} are better suited 
+  to eDNA concentrations. }
   \item{source.area}{Defines the extent of the source area of a node. Possible values are \code{"AG"} (if the source
   area is the reach surface, i.e. length*width), \code{"SC"} (if the source area is the subcatchment area), or,
   alternatively, a vector with length \code{river$AG$nodes}.}

@@ -2,7 +2,8 @@ run_eDITH_optim <-
   function(data, river, covariates = NULL, Z.normalize = TRUE,
            use.AEM = FALSE, n.AEM = NULL, par.AEM = NULL,
            no.det = FALSE, ll.type = "norm", source.area = "AG",
-           likelihood = NULL,  n.attempts = 100, par.optim = NULL){ # no parallel option for the moment
+           likelihood = NULL, sampler = NULL, n.attempts = 100,
+           par.optim = NULL){ # no parallel option for the moment
 
     if (is.null(par.optim$control)) par.optim$control <- list(fnscale = -1, maxit = 1e6)
     if (is.null(par.optim$control$fnscale)) par.optim$control$fnscale <- -1
@@ -13,9 +14,10 @@ run_eDITH_optim <-
 
     if (!is.null(likelihood)){ll.type="custom"} # doesn't this give errors?
 
+    if (is.null(n.AEM)){n.AEM <- round(0.1*river$AG$nNodes)}
+
     if (is.null(covariates)){
       use.AEM <- TRUE
-      if (is.null(n.AEM)){n.AEM <- round(0.1*river$AG$nNodes)}
       message(sprintf("Covariates not specified. Production rates will be estimated
                       based on the first n.AEM = %d AEMs. \n",n.AEM),appendLF=F)}
 
@@ -51,7 +53,7 @@ run_eDITH_optim <-
     omega.prior = list(spec="unif",min=1, max=10*max(data$values, na.rm = TRUE))
     Cstar.prior = list(spec="unif",min=0, max=1*max(data$values, na.rm = TRUE))
 
-    out <- eDITH:::prepare.prior(covariates, no.det, ll.type, tau.prior, log_p0.prior,
+    out <- prepare.prior(covariates, no.det, ll.type, tau.prior, log_p0.prior,
                                  beta.prior, sigma.prior, omega.prior, Cstar.prior, river$AG$nNodes)
     names.par <- out$names.par; allPriors <- out$allPriors
     # lb <- ub  <- numeric(0)
@@ -62,16 +64,16 @@ run_eDITH_optim <-
     #names(lb) <- names(ub)  <- names.par
 
     if(is.null(likelihood)){ # likelihood_generic is taken from run_eDITH_BT
-      likelihood <- function(param){eDITH:::likelihood_generic(param, river,
+      likelihood <- function(param){likelihood_generic(param, river,
                                                                ss, source.area,
                                                                covariates,
                                                                data, no.det,
                                                                ll.type)}}
     par.optim$fn <- likelihood
 
-    sampler <- function(n=1){eDITH:::sampler_generic(n,
-                                                     no.det=no.det,
-                                                     allPriors = allPriors)}
+    if (is.null(sampler)){
+    sampler <- function(n=1){sampler_generic(n,  allPriors = allPriors)}}
+
     ll_end_vec <- counts <- conv <- tau_vec <-  numeric(n.attempts)
     for (ind in 1:n.attempts){
       par.optim$par <- sampler(1)

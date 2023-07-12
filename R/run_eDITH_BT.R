@@ -20,9 +20,10 @@ run_eDITH_BT <-
 
     if (!is.null(likelihood)){ll.type="custom"}
 
+    if (is.null(n.AEM)){n.AEM <- round(0.1*river$AG$nNodes)}
+
     if (is.null(covariates)){
       use.AEM <- TRUE
-      if (is.null(n.AEM)){n.AEM <- round(0.1*river$AG$nNodes)}
       message(sprintf("Covariates not specified. Production rates will be estimated
                       based on the first n.AEM = %d AEMs. \n",n.AEM),appendLF=F)}
 
@@ -61,8 +62,8 @@ run_eDITH_BT <-
       }
       names(lb) <- names(ub) <- names.par
 
-      density <- function(x){density_generic(x, no.det=no.det, allPriors = allPriors)}
-      sampler <- function(n=1){sampler_generic(n, no.det=no.det, allPriors = allPriors)}
+      density <- function(x){density_generic(x, allPriors = allPriors)}
+      sampler <- function(n=1){sampler_generic(n, allPriors = allPriors)}
 
       prior <- createPrior(density = density, sampler = sampler, lower = lb, upper = ub)
 
@@ -124,7 +125,7 @@ set_boundaries <- function(ll){
   invisible(ll)
 }
 
-density_generic = function(param, no.det=TRUE, allPriors){
+density_generic = function(param, allPriors){
   nPars <- length(allPriors)
   d_comp <- numeric(nPars)
   names(d_comp) <- names(allPriors)
@@ -135,12 +136,10 @@ density_generic = function(param, no.det=TRUE, allPriors){
     d_comp[nam] <-  log(do.call(dtrunc, pri))
   }
   d_out <- sum(d_comp)
-  # if (no.det){ d_out <- sum(d_comp)} else {
-  #   d_out <- sum(d_comp[-which(names(d_comp)=="Cstar")])} # not needed! (length of param is self-adapted)
   return(d_out)
 }
 
-sampler_generic = function(n=1, no.det=TRUE, allPriors){
+sampler_generic = function(n=1, allPriors){
   nPars <- length(allPriors)
   r_comp <- numeric(nPars)
   names(r_comp) <- names(allPriors)
@@ -150,7 +149,6 @@ sampler_generic = function(n=1, no.det=TRUE, allPriors){
     pri[["n"]] <- n
     r_comp[nam] <- do.call(rtrunc, pri)
   }
-  #if (!no.det){r_comp <- r_comp[-which(names(r_comp)=="Cstar")]}
   return(r_comp)
 }
 
