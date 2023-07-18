@@ -3,7 +3,7 @@ run_eDITH_optim <-
            use.AEM = FALSE, n.AEM = NULL, par.AEM = NULL,
            no.det = FALSE, ll.type = "norm", source.area = "AG",
            likelihood = NULL, sampler = NULL, n.attempts = 100,
-           par.optim = NULL){ # no parallel option for the moment
+           par.optim = NULL, verbose = FALSE){
 
     if (is.null(par.optim$control)) par.optim$control <- list(fnscale = -1, maxit = 1e6)
     if (is.null(par.optim$control$fnscale)) par.optim$control$fnscale <- -1
@@ -18,8 +18,9 @@ run_eDITH_optim <-
 
     if (is.null(covariates)){
       use.AEM <- TRUE
+      if (verbose){
       message(sprintf("Covariates not specified. Production rates will be estimated
-                      based on the first n.AEM = %d AEMs. \n",n.AEM),appendLF=F)}
+                      based on the first n.AEM = %d AEMs. \n",n.AEM),appendLF=F)}}
 
     if (use.AEM){
       par.AEM$river <- river
@@ -86,9 +87,9 @@ run_eDITH_optim <-
       if (ind > 1){
         if (ll_end_vec[ind] > max(ll_end_vec[1:(ind-1)])) out_optim <- out
       } else {out_optim <- out}
-      message(sprintf("%.2f%% done \r", ind/n.attempts*100), appendLF = FALSE)
+      if (verbose) message(sprintf("%.2f%% done \r", ind/n.attempts*100), appendLF = FALSE)
     }
-    message("100% done    \n", appendLF = FALSE)
+    if (verbose) message("100% done    \n", appendLF = FALSE)
 
 
     tmp <- eval.pC.pD(out_optim$par, river, ss, covariates, source.area,
@@ -96,7 +97,7 @@ run_eDITH_optim <-
 
     param <- out_optim$par; param["tau"] <- tmp$tau # replace with actual tau (in hours)
 
-    out <- list(p = tmp$p, C = tmp$C, probDetection = tmp$probDetection,
+    out <- list(p = tmp$p, C = tmp$C, probDet = tmp$probDetection,
                 param = param,
                 ll.type=ll.type, no.det=no.det, data=data,
                 covariates = covariates, source.area = source.area,
@@ -106,5 +107,4 @@ run_eDITH_optim <-
 
   }
 
-# use logit link for tau
-#tau <- tau_min + (tau_max*tau_min)*(par["tau"])/(1+exp(par["tau"]))
+

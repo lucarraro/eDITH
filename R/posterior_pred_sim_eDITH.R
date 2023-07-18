@@ -15,10 +15,10 @@ posterior_pred_sim_eDITH <- function(x, river, nParamSets = 10000,
   k <- 1
   for (i in 1:nParamSets){
     s <- sample(sample.length, 1)
-    param <- mcmc.sample[s, ]
-    tau <- param["tau"]*3600
-    p <- eval.p(param, x$covariates)
-    C <- evalConc2_cpp(river, ss, x$source.area, tau, p, "AG")
+    param <- mcmc.sample[s,]
+    out <- eval.pC.pD(param, river, ss, x$covariates, x$source.area,
+                      q=NULL, ll.type=NULL, no.det=NULL)
+    C <- out$C
     for (j in 1:nDrawsPerParamSet){
       if (x$ll.type=="norm"){
         tmp <- rnorm(length(x$data$ID), mean = C[x$data$ID], sd = param["sigma"])
@@ -32,6 +32,8 @@ posterior_pred_sim_eDITH <- function(x, river, nParamSets = 10000,
         tmp <- rnbinom(length(x$data$ID),
                             size = C[x$data$ID]/(param["omega"]-1),
                             prob = 1/param["omega"])
+      } else if (x$ll.type=="geom"){
+        tmp <- rgeom(length(x$data$ID), prob = 1/(1+C[x$data$ID]))
       }
       if (x$no.det){
         Cstar <- param["Cstar"]
@@ -51,6 +53,6 @@ posterior_pred_sim_eDITH <- function(x, river, nParamSets = 10000,
   }
   if (verbose){message("100.00% completed", appendLF=FALSE)}
 
-  invisible(pps)
+  invisible(t(pps))
 
 }

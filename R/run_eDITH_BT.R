@@ -8,7 +8,8 @@ run_eDITH_BT <-
            beta.prior = list(spec="norm",sd=1),
            sigma.prior = list(spec="unif",min=0, max=max(data$values, na.rm = TRUE)),
            omega.prior = list(spec="unif",min=1, max=10*max(data$values, na.rm = TRUE)),
-           Cstar.prior = list(spec="unif",min=0, max=max(data$values, na.rm = TRUE))){
+           Cstar.prior = list(spec="unif",min=0, max=max(data$values, na.rm = TRUE)),
+           verbose = FALSE){
 
     if (is.null(prior) & !is.null(likelihood)){
       stop('If a custom likelihood is specified, a custom prior must also be specified.')
@@ -24,8 +25,9 @@ run_eDITH_BT <-
 
     if (is.null(covariates)){
       use.AEM <- TRUE
+      if (verbose){
       message(sprintf("Covariates not specified. Production rates will be estimated
-                      based on the first n.AEM = %d AEMs. \n",n.AEM),appendLF=F)}
+                      based on the first n.AEM = %d AEMs. \n",n.AEM),appendLF=F)}}
 
     if (use.AEM){
       par.AEM$river <- river
@@ -89,7 +91,7 @@ run_eDITH_BT <-
     setUp <- createBayesianSetup(likelihood = likelihood, prior = prior, names = names.par)
 
     if (is.null(mcmc.settings)){
-      settings <- list(iterations = 2.7e6, burnin = 1.8e6, message = TRUE, thin = 10)
+      settings <- list(iterations = 2.7e6, burnin = 1.8e6, message = verbose, thin = 10)
     } else {  settings <- mcmc.settings}
 
     outMCMC <- runMCMC(bayesianSetup = setUp, sampler = sampler.type, settings = settings)

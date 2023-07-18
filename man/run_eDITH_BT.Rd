@@ -19,7 +19,8 @@ run_eDITH_BT(data, river, covariates = NULL, Z.normalize = TRUE,
            beta.prior = list(spec="norm",sd=1),
            sigma.prior = list(spec="unif",min=0, max=max(data$values, na.rm = TRUE)),
            omega.prior = list(spec="unif",min=1, max=10*max(data$values, na.rm = TRUE)),
-           Cstar.prior = list(spec="unif",min=0, max=max(data$values, na.rm = TRUE)))
+           Cstar.prior = list(spec="unif",min=0, max=max(data$values, na.rm = TRUE)),
+		   verbose = FALSE)
 }
 
 \arguments{
@@ -68,6 +69,7 @@ run_eDITH_BT(data, river, covariates = NULL, Z.normalize = TRUE,
   See details.}
   \item{Cstar.prior}{List that defines the prior distribution for the \code{Cstar} parameter controlling the probability
   of no detection. It is only used if \code{no.det = TRUE}. See details.}
+  \item{verbose}{Logical. Should console output be displayed?}
 }
 \details{
 The arguments of the type \code{*.prior} consist in the lists  of arguments required by \code{\link{dtrunc}} 
@@ -94,5 +96,59 @@ Moreover, arguments \code{ll.type} (possibly changed to \code{"custom"} if a cus
 and \code{data} are added to the list.
 }
 
+\examples{
+data(wigger)
+data(dataC)
+data(dataRead)
 
+# reduce number of iterations for illustrative purposes 
+# (use default mcmc.settings to ensure convergence)
+settings.short <- list(iterations = 1e3, thin = 10)
+set.seed(1)
+out <- run_eDITH_BT(dataC, wigger, mcmc.settings = settings.short)
+
+\donttest{
+library(rivnet)
+# best-fit (maximum a posteriori) map of eDNA production rates
+plot(wigger, out$p_map)
+
+# best-fit map (maximum a posteriori) of detection probability
+plot(wigger, out$probDet_map)
+
+
+# compare best-fit vs observed eDNA concentrations
+plot(out$C_map[dataC$ID], dataC$values,
+	xlab="Modelled (MAP) concentrations", ylab="Observed concentrations")
+abline(a=0, b=1) 
+
+## fit eDNA read number data - use AEMs as covariates
+out <- run_eDITH_BT(dataRead, wigger, ll.type = "nbinom", 
+	mcmc.settings = settings.short) # use default mcmc.settings to ensure convergence
+
+## use user-defined covariates
+covariates <- data.frame(urban = wigger$SC$locCov$landcover_1,
+                         agriculture = wigger$SC$locCov$landcover_2,
+                         forest = wigger$SC$locCov$landcover_3,
+                         elev = wigger$AG$Z,
+                         log_drainageArea = log(wigger$AG$A))
+						 
+out.cov <- 	run_eDITH_BT(dataC, wigger, covariates, 
+	mcmc.settings = settings.short) # use default mcmc.settings to ensure convergence
+
+# use user-defined covariates and AEMs
+out.covAEM <- 	run_eDITH_BT(dataC, wigger, covariates, use.AEM = 1, 
+	mcmc.settings = settings.short) # use default mcmc.settings to ensure convergence	
+
+## use posterior sample to specify user-defined prior
+library(BayesianTools)
+data(outSample)
+pp <- createPriorDensity(outSample$outMCMC)
+# Important! add parameter names to objects lower, upper
+names(pp$lower) <- names(pp$upper) <- colnames(outSample$outMCMC$chain[[1]])[1:8] 
+# the three last columns are for log-posterior, log-likelihood, log-prior 
+out.new <- run_eDITH_BT(dataC, wigger, covariates, prior = pp, 
+	mcmc.settings = settings.short)
+	
+}
+}
 

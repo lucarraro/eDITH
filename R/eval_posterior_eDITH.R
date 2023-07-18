@@ -1,4 +1,4 @@
-eval_posterior_eDITH <- function(x, river){
+eval_posterior_eDITH <- function(x, river, quant=0.5){
 
   ss <- sort(river$AG$A, index.return=T); ss <- ss$ix
 
@@ -16,40 +16,44 @@ eval_posterior_eDITH <- function(x, river){
   C_mat <- matrix(0,dim(mcmc.sample)[1],river$AG$nNodes)
 
   for (r in 1:dim(mcmc.sample)[1]){
-    tau <- mcmc.sample[r,"tau"]*3600
-    p <- eval.p(mcmc.sample[r, ], x$covariates)
-    C <- evalConc2_cpp(river, ss, x$source.area, tau, p, "AG")
 
-    p_mat[r, ] <- p
-    C_mat[r, ] <- C
+    tmp <- eval.pC.pD(mcmc.sample[r,], river, ss, x$covariates, x$source.area,
+                      q, x$ll.type, x$no.det)
 
-    local_expected_C <- p*x$source.area*exp(-river$AG$leng/river$AG$velocity/tau)/q
-    if (x$ll.type=="norm") {
-      pD <- 1 - pnorm(0, mean = local_expected_C, sd = mcmc.sample[r,"sigma"])
-    } else if (x$ll.type=="lnorm"){
-      pD <- 1 - plnorm(0, meanlog = log(local_expected_C^2/sqrt(mcmc.sample[r,"sigma"]^2 + local_expected_C^2)),
-                       sdlog = sqrt(log(mcmc.sample[r,"sigma"]^2/local_expected_C^2 + 1)))
-    } else if (x$ll.type=="nbinom"){
-      pD <- 1 - pnbinom(0, size = local_expected_C/(mcmc.sample[r,"omega"]-1),
-                        prob = 1/mcmc.sample[r,"omega"])
-    } else {pD <- numeric(river$AG$nNodes)}
+    # tau <- mcmc.sample[r,"tau"]*3600
+    # p <- eval.p(mcmc.sample[r, ], x$covariates)
+    # C <- evalConc2_cpp(river, ss, x$source.area, tau, p, "AG")
 
-    if (x$no.det){
-      Cstar <- mcmc.sample[r, "Cstar"]
-      pD <- pD*(1-exp(-local_expected_C/Cstar))}
+    p_mat[r, ] <- tmp$p
+    C_mat[r, ] <- tmp$C
 
-    probDetection_mat[r, ] <- pD
+    # local_expected_C <- p*x$source.area*exp(-river$AG$leng/river$AG$velocity/tau)/q
+    # if (x$ll.type=="norm") {
+    #   pD <- 1 - pnorm(0, mean = local_expected_C, sd = mcmc.sample[r,"sigma"])
+    # } else if (x$ll.type=="lnorm"){
+    #   pD <- 1 - plnorm(0, meanlog = log(local_expected_C^2/sqrt(mcmc.sample[r,"sigma"]^2 + local_expected_C^2)),
+    #                    sdlog = sqrt(log(mcmc.sample[r,"sigma"]^2/local_expected_C^2 + 1)))
+    # } else if (x$ll.type=="nbinom"){
+    #   pD <- 1 - pnbinom(0, size = local_expected_C/(mcmc.sample[r,"omega"]-1),
+    #                     prob = 1/mcmc.sample[r,"omega"])
+    # } else {pD <- numeric(river$AG$nNodes)}
+
+    # if (x$no.det){
+    #   Cstar <- mcmc.sample[r, "Cstar"]
+    #   pD <- pD*(1-exp(-local_expected_C/Cstar))}
+
+    probDetection_mat[r, ] <- tmp$probDetection
   }
 
-  x[["p_median"]] <- apply(p_mat,2,median)
+  x[["p_quantile"]] <- apply(p_mat,2,quantile,quant)
+  x[["C_quantile"]] <- apply(C_mat,2,quantile,quant)
   x[["p_mean"]]   <- apply(p_mat,2,mean)
-  x[["C_median"]] <- apply(C_mat,2,median)
   x[["C_mean"]]   <- apply(C_mat,2,mean)
 
   if (x$ll.type=="custom"){
-    x[["probDetection_median"]] <- x[["probDetection_mean"]] <- numeric(0)
+    x[["probDetection_quantile"]] <- x[["probDetection_mean"]] <- numeric(0)
   } else {
-    x[["probDetection_median"]] <- apply(probDetection_mat,2,median)
+    x[["probDetection_quantile"]] <- apply(probDetection_mat,2,quantile, quant)
     x[["probDetection_mean"]]   <- apply(probDetection_mat,2,mean)
   }
 

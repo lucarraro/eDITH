@@ -12,7 +12,7 @@ run_eDITH_optim(data, river, covariates = NULL, Z.normalize = TRUE,
            use.AEM = FALSE, n.AEM = NULL, par.AEM = NULL,
            no.det = FALSE, ll.type = "norm", source.area = "AG",
            likelihood = NULL, sampler = NULL, n.attempts = 100, 
-		   par.optim = NULL)
+		   par.optim = NULL, verbose = FALSE)
 }
 
 \arguments{
@@ -46,6 +46,7 @@ run_eDITH_optim(data, river, covariates = NULL, Z.normalize = TRUE,
   \item{par.optim}{List of parameters to be passed to \code{\link{optim}}. By default, the likelihood is maximized (i.e., 
   \code{control$fnscale = -1}), and the maximum number of iterations is set to 1e6. The default optimization method is 
   "Nelder-Mead" (same default as in \code{optim}).}
+  \item{verbose}{Logical. Should console output be displayed?}
 }
 \details{
 If specified by the user, \code{sampler} must be a function with no input argument that produces as output a "named num" 
@@ -53,19 +54,11 @@ vector of parameters. Parameter names must be same as in the \code{likelihood}. 
 }
 \value{
 A list with objects:
-p = tmp$p, C = tmp$C, probDetection = tmp$probDetection,
-                param = param,
-                ll.type=ll.type, no.det=no.det, data=data,
-                covariates = covariates, source.area = source.area,
-                out_optim = out_optim
-
-
-
 \item{p}{Vector of best-fit eDNA production rates corresponding to the optimum parameter 
 estimates \code{param}. It has length equal to \code{river$AG$nNodes}.}
-\item{C_map}{Vector of best-fit eDNA values (in the same unit as \code{data$values}, i.e. concentrations or read numbers) 
+\item{C}{Vector of best-fit eDNA values (in the same unit as \code{data$values}, i.e. concentrations or read numbers) 
 corresponding to the optimum parameter  estimates \code{param}. It has length equal to \code{river$AG$nNodes}.}
-\item{probDetection}{Vector of best-fit detection probabilities corresponding to the optimum
+\item{probDet}{Vector of best-fit detection probabilities corresponding to the optimum
 parameter estimate \code{param_map}. It has length equal to \code{river$AG$nNodes}. If a custom \code{likelihood} is provided,
 this is a vector of null length (in which case the user should calculate the probability of detection independently, based on
 the chosen likelihood).}
@@ -78,5 +71,50 @@ Moreover, arguments \code{ll.type} (possibly changed to \code{"custom"} if a cus
 and \code{data} are added to the list.
 }
 
+\examples{
+data(wigger)
+data(dataC)
+data(dataRead)
+
+## fit eDNA concentration data - use AEMs as covariates
+set.seed(4)
+out <- run_eDITH_optim(dataC, wigger, n.AEM = 10, n.attempts = 1) 
+# reduced n.AEM and n.attempts for illustrative purposes
+# it is recommended to attempt optimization several times to ensure convergence
+
+\donttest{
+library(rivnet)
+# best-fit map of eDNA production rates
+plot(wigger, out$p)
+
+# best-fit map of detection probability
+plot(wigger, out$probDet)
+
+# compare best-fit vs observed eDNA concentrations
+plot(out$C[dataC$ID], dataC$values,
+	xlab="Modelled concentrations", ylab="Observed concentrations")
+abline(a=0, b=1) 
+
+## fit eDNA read number data - use AEMs as covariates
+set.seed(4)
+out <- run_eDITH_optim(dataRead, wigger, ll.type = "nbinom", n.attempts = 1) 
+# reduced n.attempts for illustrative purposes
+
+## use user-defined covariates
+covariates <- data.frame(urban = wigger$SC$locCov$landcover_1,
+                         agriculture = wigger$SC$locCov$landcover_2,
+                         forest = wigger$SC$locCov$landcover_3,
+                         elev = wigger$AG$Z,
+                         log_drainageArea = log(wigger$AG$A))
+						 
+out.cov <- 	run_eDITH_optim(dataC, wigger, covariates, n.attempts = 1) 
+# reduced n.attempts for illustrative purposes	
+
+# use user-defined covariates and AEMs
+out.covAEM <- 	run_eDITH_optim(dataC, wigger, covariates, use.AEM = 1, n.attempts = 1) 
+# reduced n.attempts for illustrative purposes				 
+}
+
+}
 
 

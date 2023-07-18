@@ -11,7 +11,7 @@ These can be used for diagnostics purposes, in particular to assess scaled (quan
 
 \usage{
 posterior_pred_sim_eDITH(x, river, nParamSets = 10000, nDrawsPerParamSet = 10, 
-verbose = FALSE)
+	verbose = FALSE)
 }
 
 \arguments{
@@ -26,12 +26,22 @@ verbose = FALSE)
 since the sampling of posterior parameter sets is operated with replacement.
 }
 \value{
-A matrix with dimensions \code{nParamSets*nDrawsPerParamSet}-by-\code{length(x$data$ID)}. Each row is a 
-predictive posterior simulation. Each column corresponds to a site where eDNA data were observed 
+A matrix with dimensions \code{length(x$data$ID)}-by-\code{nParamSets*nDrawsPerParamSet}. Each column is a 
+predictive posterior simulation. Each row corresponds to a site where eDNA data were observed 
 (corresponding to the entries of argument \code{data} in \code{\link{run_eDITH_BT}}. Matrix entries are
 eDNA values (either concentrations or read numbers) predicted by the model for a given predictive posterior
 simulation at a given observational site.
 }
 \seealso{\code{\link{DHARMa}}.}
 
+\examples{
+library(DHARMa)
+data(outSample)
+data(wigger)
+data(dataC)
+pps <- posterior_pred_sim_eDITH(outSample, wigger, nParamSets = 1000) 
+# reduced nParamSets for illustrative purposes
 
+sim.out <- createDHARMa(pps, dataC$values)
+plot(sim.out)
+}
