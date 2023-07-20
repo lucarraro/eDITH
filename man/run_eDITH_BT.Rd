@@ -78,6 +78,9 @@ run_eDITH_BT(data, river, covariates = NULL, Z.normalize = TRUE,
 \details{
 The arguments of the type \code{*.prior} consist in the lists  of arguments required by \code{\link{dtrunc}} 
 (except the first argument \code{x}).
+
+By default, AEMs are computed without attributing weights to the edges  of the river network. 
+Use e.g. \code{par.AEM = list(weight = "gravity")} to attribute weights. 
 }
 \value{
 A list with objects:
@@ -126,7 +129,8 @@ plot(out$C_map[dataC$ID], dataC$values,
 abline(a=0, b=1) 
 
 ## fit eDNA read number data - use AEMs as covariates
-out <- run_eDITH_BT(dataRead, wigger, ll.type = "nbinom", 
+out <- run_eDITH_BT(dataRead, wigger, ll.type = "nbinom",
+	par.AEM = list(weight = "gravity"),
 	mcmc.settings = settings.short) # use default mcmc.settings to ensure convergence
 
 ## use user-defined covariates
@@ -140,8 +144,14 @@ out.cov <- 	run_eDITH_BT(dataC, wigger, covariates,
 	mcmc.settings = settings.short) # use default mcmc.settings to ensure convergence
 
 # use user-defined covariates and AEMs
-out.covAEM <- 	run_eDITH_BT(dataC, wigger, covariates, use.AEM = 1, 
+out.covAEM <- 	run_eDITH_BT(dataC, wigger, covariates, 
+	use.AEM = TRUE, par.AEM = list(weight = "gravity"),
 	mcmc.settings = settings.short) # use default mcmc.settings to ensure convergence	
+
+# use AEMs with significantly positive spatial autocorrelation
+out.AEM.moran <- run_eDITH_BT(dataC, wigger, use.AEM = TRUE,
+	par.AEM = list(weight = "gravity", moranI = TRUE), 
+	mcmc.settings = settings.short) # use default mcmc.settings to ensure convergence 
 
 ## use posterior sample to specify user-defined prior
 library(BayesianTools)

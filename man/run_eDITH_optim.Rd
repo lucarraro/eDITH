@@ -53,8 +53,11 @@ run_eDITH_optim(data, river, covariates = NULL, Z.normalize = TRUE,
   \item{verbose}{Logical. Should console output be displayed?}
 }
 \details{
-If specified by the user, \code{sampler} must be a function with no input argument that produces as output a "named num" 
-vector of parameters. Parameter names must be same as in the \code{likelihood}. See example (missing!!).
+If specified by the user, \code{sampler} must be a function that produces as output a "named num" 
+vector of parameters. Parameter names must be same as in the \code{likelihood}. See example.
+
+By default, AEMs are computed without attributing weights to the edges  of the river network. 
+Use e.g. \code{par.AEM = list(weight = "gravity")} to attribute weights. 
 }
 \value{
 A list with objects:
@@ -82,10 +85,9 @@ data(dataRead)
 
 ## fit eDNA concentration data - use AEMs as covariates
 set.seed(4)
-out <- run_eDITH_optim(dataC, wigger, n.AEM = 10, n.attempts = 1) 
-# reduced n.AEM and n.attempts for illustrative purposes
-# it is recommended to attempt optimization several times to ensure convergence
-
+out <- run_eDITH_optim(dataC, wigger, n.AEM = 10, 
+	n.attempts = 1) # reduced n.AEM, n.attempts for illustrative purposes
+	# it is recommended to attempt optimization several times to ensure convergence 
 \donttest{
 library(rivnet)
 # best-fit map of eDNA production rates
@@ -96,13 +98,14 @@ plot(wigger, out$probDet)
 
 # compare best-fit vs observed eDNA concentrations
 plot(out$C[dataC$ID], dataC$values,
-	xlab="Modelled concentrations", ylab="Observed concentrations")
+	xlab = "Modelled concentrations", ylab = "Observed concentrations")
 abline(a=0, b=1) 
 
 ## fit eDNA read number data - use AEMs as covariates
 set.seed(4)
-out <- run_eDITH_optim(dataRead, wigger, ll.type = "nbinom", n.attempts = 1) 
-# reduced n.attempts for illustrative purposes
+out <- run_eDITH_optim(dataRead, wigger, ll.type = "nbinom", 
+			par.AEM = list(weight = "gravity"), 
+			n.attempts = 1) # reduced n.attempts for illustrative purposes
 
 ## use user-defined covariates
 covariates <- data.frame(urban = wigger$SC$locCov$landcover_1,
@@ -110,19 +113,35 @@ covariates <- data.frame(urban = wigger$SC$locCov$landcover_1,
                          forest = wigger$SC$locCov$landcover_3,
                          elev = wigger$AG$Z,
                          log_drainageArea = log(wigger$AG$A))
-						 
+
+set.seed(2)						 
 out.cov <- 	run_eDITH_optim(dataC, wigger, covariates, n.attempts = 1) 
 # reduced n.attempts for illustrative purposes	
 
 # use user-defined covariates and AEMs
-out.covAEM <- 	run_eDITH_optim(dataC, wigger, covariates, use.AEM = TRUE, n.attempts = 1) 
-# reduced n.attempts for illustrative purposes				 
-}
-\dontrun{ # this takes hours!!
-# use AEMs with significantly positive spatial autocorrelation
-out.AEM.moran <- run_eDITH_optim(dataC, wigger, par.AEM = list(moranI = TRUE)) 
-# reduced n.attempts for illustrative purposes	
+set.seed(1)
+out.covAEM <- run_eDITH_optim(dataC, wigger, covariates, use.AEM = TRUE, 
+				 par.AEM = list(weight = "gravity"), 
+				 n.attempts = 1) # reduced n.attempts for illustrative purposes				 
 
+# use AEMs with significantly positive spatial autocorrelation
+set.seed(1)
+out.AEM.moran <- run_eDITH_optim(dataC, wigger, use.AEM = TRUE,
+	par.AEM = list(weight = "gravity", moranI = TRUE), 
+	n.attempts = 1) # reduced n.attempts for illustrative purposes	
+
+# define sampler function when the first 10 AEMs are used as covariates
+samp_fun <- function(n){ # input argument needed but not used
+    mins = c(0, -20, rep(-5,10), 0)
+    maxs = c(10, 0, rep(5,10), 5e-12)
+    nams = c("tau", "log_p0", paste0("beta_AEM",1:10), "sigma")
+    vec <- runif(numeric(13), min=mins, max=maxs)
+    names(vec) <- nams
+    return(vec)}
+set.seed(1)
+out.samp <- run_eDITH_optim(dataC, wigger, n.AEM = 10, 
+    sampler = samp_fun,
+	n.attempts = 1) # reduced n.attempts for illustrative purposes
 }
 
 
