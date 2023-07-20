@@ -19,14 +19,22 @@ run_eDITH_optim <-
     if (is.null(covariates)){
       use.AEM <- TRUE
       if (verbose){
-      message(sprintf("Covariates not specified. Production rates will be estimated
-                      based on the first n.AEM = %d AEMs. \n",n.AEM),appendLF=F)}}
+        if (isTRUE(par.AEM$moranI)){
+          message("Covariates not specified. Production rates will be estimated
+                      based on AEMs with significantly positive spatial autocorrelation",
+                  appendLF=F)}
+      } else {
+        message(sprintf("Covariates not specified. Production rates will be estimated
+                      based on the first n.AEM = %d AEMs. \n",n.AEM),appendLF=F)}
+    }
 
     if (use.AEM){
       par.AEM$river <- river
       out <- do.call(river_to_AEM, par.AEM)
-      cov.AEM <- data.frame(out$vectors[,1:n.AEM])
-      names(cov.AEM) <- paste0("AEM",1:n.AEM)
+      if (!is.null(out$moranI)){ select.AEM <- which(out$moranI$pvalue < 0.05)
+      } else {select.AEM <- 1:n.AEM}
+      cov.AEM <- data.frame(out$vectors[,select.AEM])
+      names(cov.AEM) <- paste0("AEM",1:select.AEM)
       covariates <- data.frame(c(covariates, cov.AEM))
     }
 
@@ -55,7 +63,7 @@ run_eDITH_optim <-
     Cstar.prior = list(spec="unif",min=0, max=1*max(data$values, na.rm = TRUE))
 
     out <- prepare.prior(covariates, no.det, ll.type, tau.prior, log_p0.prior,
-                                 beta.prior, sigma.prior, omega.prior, Cstar.prior, river$AG$nNodes)
+                         beta.prior, sigma.prior, omega.prior, Cstar.prior, river$AG$nNodes)
     names.par <- out$names.par; allPriors <- out$allPriors
     # lb <- ub  <- numeric(0)
     # for (nam in names.par){
@@ -66,14 +74,14 @@ run_eDITH_optim <-
 
     if(is.null(likelihood)){ # likelihood_generic is taken from run_eDITH_BT
       likelihood <- function(param){likelihood_generic(param, river,
-                                                               ss, source.area,
-                                                               covariates,
-                                                               data, no.det,
-                                                               ll.type)}}
+                                                       ss, source.area,
+                                                       covariates,
+                                                       data, no.det,
+                                                       ll.type)}}
     par.optim$fn <- likelihood
 
     if (is.null(sampler)){
-    sampler <- function(n=1){sampler_generic(n,  allPriors = allPriors)}}
+      sampler <- function(n=1){sampler_generic(n,  allPriors = allPriors)}}
 
     ll_end_vec <- counts <- conv <- tau_vec <-  numeric(n.attempts)
     for (ind in 1:n.attempts){

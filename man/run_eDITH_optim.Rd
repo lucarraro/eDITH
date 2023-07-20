@@ -23,11 +23,15 @@ run_eDITH_optim(data, river, covariates = NULL, Z.normalize = TRUE,
   \item{covariates}{Data frame containing covariate values for all \code{river} reaches. If \code{NULL} (default
   option), production rates are estimated via AEMs.}
   \item{Z.normalize}{Logical. Should covariates be Z-normalized?}
-  \item{use.AEM}{Logical. Should eigenvectors based on AEMs be used as covariates? If \code{covariates = NULL}, it is 
-  set to \code{TRUE}. If \code{TRUE} and \code{covariates} are provided, \code{n.AEM} eigenvectors are appended to the 
+    \item{use.AEM}{Logical. Should eigenvectors based on AEMs be used as covariates? If \code{covariates = NULL}, it is 
+  set to \code{TRUE}. If \code{TRUE} and \code{covariates} are provided, AEM eigenvectors are appended to the 
   \code{covariates} data frame.}
-   \item{n.AEM}{Number of AEM eigenvectors (sorted by the decreasing respective eigenvalue) to be used as covariates.}
-  \item{par.AEM}{List of additional parameters that are passed to \code{\link{river_to_AEM}} for calculation of AEMs.}
+   \item{n.AEM}{Number of AEM eigenvectors (sorted by the decreasing respective eigenvalue) to be used as covariates. If 
+   \code{par.AEM$moranI = TRUE}, this parameter is not used. Instead, the eigenvectors with significantly positive spatial
+   autocorrelation are used as AEM covariates.}
+  \item{par.AEM}{List of additional parameters that are passed to \code{\link{river_to_AEM}} for calculation of AEMs. 
+  In particular, \code{par.AEM$moranI = TRUE} imposes the use of AEM covariates with significantly positive spatial 
+  autocorrelation based on Moran's I statistic. }
   \item{no.det}{Logical. Should a probability of non-detection be included in the model?}
   \item{ll.type}{Character. String defining the error distribution used in the log-likelihood formulation. 
   Allowed values are \code{norm} (for normal distribution), \code{lnorm} (for lognormal distribution), 
@@ -111,9 +115,16 @@ out.cov <- 	run_eDITH_optim(dataC, wigger, covariates, n.attempts = 1)
 # reduced n.attempts for illustrative purposes	
 
 # use user-defined covariates and AEMs
-out.covAEM <- 	run_eDITH_optim(dataC, wigger, covariates, use.AEM = 1, n.attempts = 1) 
+out.covAEM <- 	run_eDITH_optim(dataC, wigger, covariates, use.AEM = TRUE, n.attempts = 1) 
 # reduced n.attempts for illustrative purposes				 
 }
+\dontrun{ # this takes hours!!
+# use AEMs with significantly positive spatial autocorrelation
+out.AEM.moran <- run_eDITH_optim(dataC, wigger, par.AEM = list(moranI = TRUE)) 
+# reduced n.attempts for illustrative purposes	
+
+}
+
 
 }
 

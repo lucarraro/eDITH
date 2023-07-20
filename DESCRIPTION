@@ -1,11 +1,25 @@
 Package: eDITH
 Type: Package
 Title: Model Transport of Environmental DNA In River Networks
-Version: 1.0
+Version: 0.1.0
 Date: 2023-05-25
 Author: Luca Carraro
 Maintainer: Luca Carraro <luca.carraro@hotmail.it>
-Description: One paragraph description of what the package does as one or more full sentences.
+Description:  Runs the eDITH (eDNA Integrating Transport and Hydrology) model,
+  which implements a mass balance of eDNA transport at a river network scale 
+  coupled with a species distribution model to obtain maps of species distribution. 
+  eDITH can work with both eDNA concentration (e.g., obtained via qPCR) or 
+  metabarcoding (read count) data. Parameter estimation can be performed 
+  via Bayesian techniques (via the \code{BayesianTools} package) or optimization
+  algorithms. An interface to the \code{DHARMa} package for posterior predictive
+  checks is provided.
 License: GPL (>= 2)
+Encoding: UTF-8
+Suggests: 
+    knitr,
+    rmarkdown,
+    bookdown
+VignetteBuilder: knitr
+URL: https://lucarraro.github.io/eDITH/
 Imports: Rcpp (>= 1.0.10), OCNet (>= 1.1.0), rivnet (>= 0.3.0), BayesianTools, LaplacesDemon, DHARMa
 LinkingTo: Rcpp

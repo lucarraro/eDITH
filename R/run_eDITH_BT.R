@@ -26,16 +26,25 @@ run_eDITH_BT <-
     if (is.null(covariates)){
       use.AEM <- TRUE
       if (verbose){
-      message(sprintf("Covariates not specified. Production rates will be estimated
-                      based on the first n.AEM = %d AEMs. \n",n.AEM),appendLF=F)}}
+        if (isTRUE(par.AEM$moranI)){
+          message("Covariates not specified. Production rates will be estimated
+                      based on AEMs with significantly positive spatial autocorrelation",
+                  appendLF=F)}
+      } else {
+        message(sprintf("Covariates not specified. Production rates will be estimated
+                      based on the first n.AEM = %d AEMs. \n",n.AEM),appendLF=F)}
+    }
 
     if (use.AEM){
       par.AEM$river <- river
       out <- do.call(river_to_AEM, par.AEM)
-      cov.AEM <- data.frame(out$vectors[,1:n.AEM])
-      names(cov.AEM) <- paste0("AEM",1:n.AEM)
+      if (!is.null(out$moranI)){ select.AEM <- which(out$moranI$pvalue < 0.05)
+      } else {select.AEM <- 1:n.AEM}
+      cov.AEM <- data.frame(out$vectors[,select.AEM])
+      names(cov.AEM) <- paste0("AEM",1:select.AEM)
       covariates <- data.frame(c(covariates, cov.AEM))
     }
+
 
     # calculate additional hydraulic variables
     ss <- sort(river$AG$A,index.return=T); ss <- ss$ix
