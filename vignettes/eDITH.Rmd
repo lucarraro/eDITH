@@ -8,7 +8,7 @@ output:
       number_sections: true
       fig_caption: true
 vignette: >
-  %\VignetteIndexEntry{An introduction to rivnet}
+  %\VignetteIndexEntry{An introduction to eDITH}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -21,34 +21,28 @@ knitr::opts_chunk$set(
 ``` 
 
 ```{r lib, echo = FALSE}
-suppressPackageStartupMessages(library(rivnet))
-suppressPackageStartupMessages(library(traudem))
+suppressPackageStartupMessages(library(eDITH))
 ```
 
 
 # Overview
 
-`eDITH` (**eD**NA **I**ntegrating **T**ransport and **H**ydrology) allows interpreting environmental DNA data collected from river networks. It implements the eDITH model, which couples a geomorphological and hydrological characterization of a catchment, eDNA
-transport and decay dynamics, and a species distribution model, and allows transforming pointwise eDNA
-data collected at a catchment into predicted maps of taxon density
-
-
+`eDITH` (**eD**NA **I**ntegrating **T**ransport and **H**ydrology) allows interpreting environmental DNA data collected from river networks. It implements the eDITH model, which couples a geomorphological and hydrological characterization of a catchment, eDNA transport and decay dynamics, and a species distribution model, and allows transforming pointwise eDNA
+data collected at a catchment into predicted maps of taxon density. 
 
 Features:
 
-* Analyze user-provided DEMs or automatically downloaded from open source repositories
-* Identify flow directions by implementing TauDEM's D8 flow direction algorithm
-* Delineate reaches, subcatchments, lengths, slopes and areas
-* Calculate along-stream distances between network nodes
-* Attribute sites to a river network
-* Evaluate covariates at subcatchment level from user-provided raster files
-* Derive hydraulic and hydrological variables across a network from point measurements
+* It provides estimations of detection probability of a taxon across a whole catchment based on spatially replicated eDNA data 
+* It can handle both eDNA concentration data (e.g., from qPCR) and metabarcoding (read counts) data
+* Model fit can be performed via Bayesian techniques or optimization algorithms 
+* Covariates can be specified by the user and/or selected by means of Asymmetric Eigenvector Maps (AEMs)
+* An interface to the `DHARMa` package for residual diagnostics is provided
 
-rivnet produces `river` objects, which are compatible with the `OCNet` package, and can hence be analyzed and displayed with `OCNet` functions. As such, `river` objects can be made compatible with the `igraph` and `SSN` packages.
+`eDITH` requires the use of river networks defined as `river` objects, which can be built via the `rivnet` package.
 
 # Installing the package
 
-The development version of eDITH can be installed from Github:
+The development version of `eDITH` can be installed from Github:
 
 ```{r, eval=FALSE}
 devtools::install_github("lucarraro/eDITH")
@@ -56,67 +50,84 @@ devtools::install_github("lucarraro/eDITH")
 
 Among other packages, `eDITH` depends on `rivnet`, which in turn depends on the `traudem` package. `traudem` relies on the [TauDEM](https://hydrology.usu.edu/taudem/taudem5/) library. `traudem` provides a guide to correct installation of TauDEM and its dependencies for different operating systems, and offers wrapper commands to call TauDEM methods from R. Please read the `traudem` [documentation](https://lucarraro.github.io/traudem/) carefully.
 
-# Workflow
+# The eDITH model in a nutshell
 
-Functions and output from packages `rivnet` and `OCNet` are interoperable according to the following workflow:
+# Required data
 
-```{r overview, echo=FALSE, fig.cap="Overview of `rivnet` and `OCNet` functions. `aggregate_river`, `paths_river`, `river_to_igraph` and `river_to_SSN` are aliases for `aggregate_OCN`, `paths_OCN`, `OCN_to_igraph` and `OCN_to_SSN`, respectively; `path_velocities_river` requires `paths_river` and one between `hydro_river` and `rivergeometry_OCN`.", out.width = '80%'}
+# Specifying covariates
 
-```
-
-The main function of `rivnet` is `extract_river`. This function analyzes a DEM and generates a `river` object. Necessary inputs are either an user-provided DEM or the extent of a region where DEM data should be downloaded from open-source repositories (via the `elevatr` package); and the coordinates of the outlet(s) of interest. `extract_river` can also be used as a wrapper for the TauDEM set of functions extracting D8 flow directions and contributing area:
-
-```{r taudem, echo=FALSE, fig.cap="Workflow of TauDEM functions used by `extract_river`. Refer to the TauDEM documentation for details on these functions.", out.width = '80%'}
+```{r overview, echo=FALSE, fig.cap="Flowchart for the choice of covariates used to fit the eDITH model in `run_eDITH_BT` and `run_eDITH_optim`.", out.width = '90%'}
+knitr::include_graphics("flowchart_cov.png")
 
 ```
 
-`river` objects obtained from `extract_river` can then be processed by `aggregate_river` (which builds a river network at different aggregation levels) and `paths_river` (which calculates paths and path distances between network nodes). Refer to the `OCNet` [documentation](https://lucarraro.github.io/OCNet/articles/OCNet.html) for details on the definition of aggregation levels and the behavior of these functions.
+# Likelihood function and model parameters
+
+By default, `eDITH` implements four probability distributions to model errors between observed and modelled data: 
+
+* the normal (`ll.type = "norm"`) and log-normal (`ll.type = "lnorm"`) distributions are suitable to model *eDNA concentration* data. 
+* the geometric (`ll.type = "geom"`) and negative binomial (`ll.type = "nbinom"`) distributions are suitable for *read count* data. 
+
+**Note that the user is expected to set option `ll.type` according to the nature of the `data` provided in `run_eDITH_BT` or `run_eDITH_optim`.** 
+
+Moreover, the optional argument `no.det = TRUE` can be used to produce a zero-inflated error distribution. This is mandatory if `ll.type = "lnorm"`, as the log-normal distribution does not admit zeros.
+
+Default model parameters are as follows:
+
+* `tau` represents decay time $\tau$ in hours.
+* `log_p0` is the logarithm in base 10 of the baseline production rate $p_0$. The units of $p_0$ are equal to the units of the inputted `data$values` multiplied by a length unit and divided by a time unit. For instance, if `data$values` contains eDNA concentration data in mol m^-3^ and the river object contains discharge (`river$AG$Q`) in m^3^s^-1^ and areas^[This depends on the resolution of the DEM used to obtain the river network in `rivnet::extract_river`] in m^2^, $p_0$ is expressed in mol m^-2^ s^-1^ (i.e. amount of eDNA shed per unit area and unit time). In the case of read count data, the unit for $p_0$ might look weird; this is because, in this case, $p_0$ embeds a constant that transforms expected eDNA concentration predicted by the model into expected read number.
+* `beta_X` is the effect size of covariate `X`, where `X` is replaced by the object names in the `covariates` data frame (if provided), and/or by e.g. `AEM1` when AEM eigenfunctions are used. In this case, the number indicates the corresponding eigenfunction.
+
+Additional parameters can be added depending on the likelihood definition:
+
+* `sigma` is the standard deviation of the error (when `ll.type = "norm"` or "lnorm"). Note that, if a log-normal distribution is used, `sigma` is the standard deviation of the non-log-transformed values (and is hence different than parameter `sdlog` of `dlnorm`).
+* `omega` is the overdispersion parameter (when `ll.type = "nbinom"`), which is defined as the ratio between variance and mean [@linden2011].
+* no additional error parameter is present if `ll.type = "geom"`.
+* `Cstar` is a further parameter added when the optional argument `no.det = TRUE` is passed. In this case, the probability of non-detection is expressed as `exp(-C/Cstar)`, where `C` is the modelled eDNA value (expected concentration or read number) at a given site. Increased `Cstar` increases the non-detection probability, all else being equal. See @carraro2018 for details. 
+
+
 
 # A minimal example
 
-Extract a river (Wigger, Switzerland) from an user-provided DEM:
-```r
-fp <- system.file("extdata/wigger.tif", package = "rivnet")
-r <- extract_river(outlet = c(637478, 237413), DEM = fp)
-r
-#> Class         : river 
-#> Type          : Real river 
-#> No. FD nodes  : 8768 
-#> Dimensions    : 195 x 242 
-#> Cell size     : 208.23 
-#> Has elevation : TRUE 
-#> Aggregated    : FALSE 
-```
-Outlet coordinates must be expressed in the same coordinate system as the input DEM.
 
-The same river can be extracted starting from DEM data downloaded from open-source servers:
-```r
-r2 <- extract_river(outlet = c(637478, 237413),
-	EPSG = 21781, #CH1903/LV03 coordinate system
-	ext = c(6.2e5, 6.6e5, 2e5, 2.5e5),
-	z = 10)
+# References
 
-plot(r2)
-```
+---
+references:
 
-
+- id: carraro2018
+  title: Estimating species distribution and abundance in river networks using environmental DNA
+  author:
+  - family: Carraro
+    given: L.
+  - family: Hartikainen
+    given: H.
+  - family: Jokela
+    given: J.
+  - family: Bertuzzo
+    given: E.
+  - family: Rinaldo
+    given: A.
+  container-title: Proceedings of the National Academy of Sciences of the United States of America
+  URL: 'https://doi.org/10.1073/pnas.1813843115'
+  type: article-journal
+  issued:
+    year: 2018
 
 
-A `plot` method has been defined for `river` objects, which calls different drawing functions from the `OCNet` package. Its default behavior depends on the attributes included in the `river` object:
-```r
-r2 <- aggregate_river(r2)
-plot(r2)
-```
-
-
-
-In the first case, `plot` calls `draw_simple_OCN`; in the second case, it calls `draw_thematic_OCN`.
-
-For computational speed issues, the examples provided are derived from rather coarse DEMs. To increase the resolution of the DEM (and thus of the resulting `river`), it is possible to increase the `z` value in `extract_river` (see `elevatr` documentation for details).
-
-# Other functions
-
-* `locate_site`: finds the river network node that is closest to a given site (identified by its coordinates). Attribution can be performed either as the crow flies, or following the steepest descent. It is possible to use the `locator()` function to identify the input coordinates by directly clicking on a river plot.
-* `covariate_river`: attributes covariate values from user-defined raster files to subcatchments of a river network. Both local and upstream-averaged covariate values are calculated. Covariates can be either categorical (e.g., land cover classes) or continuous (e.g., temperature values).
-* `hydro_model`: assigns hydraulic variables (width, river depth, water discharge, and derived variables) to all nodes of a network starting from a minimal number of measured values, and based on power-law scaling relationships and uniform flow equations (Gauchler-Strickler-Manning). It can deal with non-rectangular cross-sections (and hence varying width as a function of discharge).
+- id: linden2011
+  title: Using the negative binomial distribution to model overdispersion in ecological count data
+  author:
+  - family: Lindén
+    given: A.
+  - family: Mäntyniemi
+    given: S.
+  container-title: Ecology
+  URL: 'https://doi.org/10.1890/10-1831.1'
+  type: article-journal
+  issued:
+    year: 2011
+    
+    
+---    
 
