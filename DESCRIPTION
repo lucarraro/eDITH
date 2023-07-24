@@ -6,7 +6,7 @@ Authors@R:
     c(person("Luca", "Carraro", 
 	email = "luca.carraro@hotmail.it", role = c("cre", "aut")),
     person("University of Zurich", role = c("cph", "fnd")))
-Description:  Runs the eDITH (eDNA Integrating Transport and Hydrology) model,
+Description: Runs the eDITH (eDNA Integrating Transport and Hydrology) model,
   which implements a mass balance of eDNA transport at a river network scale 
   coupled with a species distribution model to obtain maps of species distribution. 
   eDITH can work with both eDNA concentration (e.g., obtained via qPCR) or 
