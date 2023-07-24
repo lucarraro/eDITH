@@ -21,6 +21,6 @@ Features:
 
 The development version of `eDITH` can be installed from Github:
 
-```{r, eval=FALSE}
+```{r}
 devtools::install_github("lucarraro/eDITH")
 ```
