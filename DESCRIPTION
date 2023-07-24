@@ -2,9 +2,10 @@ Package: eDITH
 Type: Package
 Title: Model Transport of Environmental DNA In River Networks
 Version: 0.1.0
-Date: 2023-05-25
-Author: Luca Carraro
-Maintainer: Luca Carraro <luca.carraro@hotmail.it>
+Authors@R: 
+    c(person("Luca", "Carraro", 
+	email = "luca.carraro@hotmail.it", role = c("cre", "aut")),
+    person("University of Zurich", role = c("cph", "fnd")))
 Description:  Runs the eDITH (eDNA Integrating Transport and Hydrology) model,
   which implements a mass balance of eDNA transport at a river network scale 
   coupled with a species distribution model to obtain maps of species distribution. 
@@ -13,7 +14,7 @@ Description:  Runs the eDITH (eDNA Integrating Transport and Hydrology) model,
   via Bayesian techniques (via the \code{BayesianTools} package) or optimization
   algorithms. An interface to the \code{DHARMa} package for posterior predictive
   checks is provided.
-License: GPL (>= 2)
+License: MIT + file LICENSE
 Encoding: UTF-8
 Suggests: 
     knitr,
