@@ -22,6 +22,9 @@ knitr::opts_chunk$set(
 
 ```{r lib, echo = FALSE}
 suppressPackageStartupMessages(library(eDITH))
+suppressPackageStartupMessages(library(rivnet))
+suppressPackageStartupMessages(library(terra))
+
 ```
 
 
@@ -54,7 +57,7 @@ Among other packages, `eDITH` depends on `rivnet`, which in turn depends on the 
 
 ## Overview and underlying assumptions
 
-The eDITH model makes use of spatially replicated eDNA measurements from a river network to infer the spatial distribution of a taxon of interest. The key underlying concept is that eDNA particles are advected downstream by streamflow, and hence an eDNA sample is not only representative of the location where it is taken, but it provides information (about taxon abundance, in the case of qPCR single-species data; or biodiversity, for metabarcoding data) for a certain area upstream of the sampling location. By exploiting information from multiple sampling sites distributed in space, the eDITH model is able to disentangle the various sources of eDNA shedding (and hence, of the target taxon's abundance). As a result, eDITH complements pointwise eDNA measurements by projecting taxon distributions (and thus biodiversity information) into space-filling catchment maps.
+The eDITH model [@carraro2018; @Carraro2020; @Carraro2021; @Carraro2023] makes use of spatially replicated eDNA measurements from a river network to infer the spatial distribution of a taxon of interest. The key underlying concept is that eDNA particles are advected downstream by streamflow, and hence an eDNA sample is not only representative of the location where it is taken, but it provides information (about taxon abundance, in the case of qPCR single-species data; or biodiversity, for metabarcoding data) for a certain area upstream of the sampling location. By exploiting information from multiple sampling sites distributed in space, the eDITH model is able to disentangle the various sources of eDNA shedding (and hence, of the target taxon's abundance). As a result, eDITH complements pointwise eDNA measurements by projecting taxon distributions (and thus biodiversity information) into space-filling catchment maps.
 
 The key assumptions underlying the eDITH model are:
 
@@ -110,9 +113,7 @@ eDNA data must be provided in the `data` field of `run_eDITH_BT` and `run_eDITH_
 
 The river network must be provided as a `river` object, obtained via the `rivnet` package. It is fundamental that the river be aggregated into reaches (via `aggregate_river`) and that it contains hydrological data, such that discharges and water velocities can be used as input in the eDITH model. This can be obtained via the `hydro_river` function of `rivnet`. In its simplest setting, a single value of discharge (or depth) and width are required in order to extrapolate hydraulic variables across the whole network.
 
-Optionally, covariates can be passed to `run_eDITH_BT` and `run_eDITH_optim` as a data frame. Function `covariate_river` of `rivnet` allows computing covariate values from raster maps and a `river` object. If covariates are not provided, asymmetric eigenvector maps (AEMs) are calculated on the river network and used as covariates. AEMs [@Blanchet2008] are mutually orthogonal spatial variables obtained by a spatial filtering technique that considers space in an asymmetric way, and are thus suitable to model species distributions in river networks. It is of course possible to combine user-provided covariates and AEMs (see following section).
-
-# Specifying covariates
+Optionally, covariates can be passed to `run_eDITH_BT` and `run_eDITH_optim` as a data frame. Function `covariate_river` of `rivnet` allows computing covariate values from raster maps and a `river` object. If covariates are not provided, asymmetric eigenvector maps (AEMs) are calculated on the river network and used as covariates. AEMs [@blanchet2008] are mutually orthogonal spatial variables obtained by a spatial filtering technique that considers space in an asymmetric way, and are thus suitable to model species distributions in river networks. It is of course possible to combine user-provided covariates and AEMs, as detailed in the flowchart below:
 
 ```{r overview, echo=FALSE, fig.cap="Flowchart for the choice of covariates used to fit the eDITH model in `run_eDITH_BT` and `run_eDITH_optim`.", out.width = '90%'}
 knitr::include_graphics("flowchart_cov.png")
@@ -147,6 +148,142 @@ Additional parameters can be added depending on the likelihood definition:
 
 
 # A minimal example
+
+## Generating a `river` object
+
+To illustrate the functioning of `eDITH`, let's run an example in the river Wigger (Switzerland), whose `river` object can be called via `data(wigger)`.
+Such object can be built via the `rivnet` package as follows. Please refer to `rivnet` documentation for details on its functions.
+
+```{r}
+# Extract river from DEM
+river <- rivnet::extract_river(outlet=c(637478,237413),
+                    EPSG=21781, #CH1903/LV03 coordinate system
+                    ext=c(6.2e5,6.6e5,2e5,2.5e5),
+                    z=9)
+
+# Aggregate river - default thrA and maxReachLength = 2500 m
+river <- rivnet::aggregate_river(river, maxReachLength = 2500)
+
+# Hydraulic data: width = 8 m, discharge = 15 m3/s at the outlet
+hydrodata <- data.frame(data = c(8, 15), 
+                        type = c("w", "Q"), 
+                        node = river$AG$outlet*c(1, 1))
+
+# Assign hydraulic variables across the river network
+river <- rivnet::hydro_river(hydrodata, river)
+
+# Attribute landcover classes as covariates
+r1 <- terra::rast(system.file("extdata/landcover.tif", 
+                       package = "rivnet"))
+river <- rivnet::covariate_river(r1, river)
+
+```
+
+## Preparing and displaying eDNA data
+
+An example of eDNA concentration data for a given target taxon can be called as:
+```{r}
+data(dataC)
+```
+`dataC` contains the following objects:
+
+* `ID`: identifiers of river network nodes at the AG levels where eDNA has been sampled (these can be retrieved via `rivnet::locate_site` based on the site coordinates).
+* `values`: corresponding values of eDNA concentration measured (in mol m^-3^)
+
+`dataC` contains eDNA values for 24 sampling sites, each of which has been sampled three times. In such case, the three different eDNA values are inserted in `dataC` as independent rows:
+
+```{r}
+dataC[which(dataC$ID==2),]
+```
+
+We can use function `rivnet::points_colorscale` to display the mean eDNA concentration values across the sampling sites:
+
+```{r, fig.width=6, fig.height=6}
+sites <- unique(dataC$ID)
+values <- numeric(length(sites))
+for (ind in 1:length(sites)){
+  s <- sites[ind]
+  values[ind] <- mean(dataC$values[dataC$ID==s])
+}
+
+plot(river)
+rivnet::points_colorscale(river$AG$X[unique(dataC$ID)], river$AG$Y[unique(dataC$ID)],
+                          values)
+title("Mean eDNA concentration [mol m-3]")
+
+```
+
+## Running the eDITH model
+
+We can define a set of covariates containing main landcover classes (urban areas, agricultural areas and forest) in addition to elevation and log-scaled drainage area:
+
+```{r}
+covariates <- data.frame(urban = river$SC$locCov$landcover_1,
+                         agriculture = river$SC$locCov$landcover_2,
+                         forest = river$SC$locCov$landcover_3,
+                         elev = river$AG$Z,
+                         log_drainageArea = log(river$AG$A))
+
+```
+
+### Bayesian methods
+
+We can use a Bayesian approach to fit the eDITH model. Function `run_eDITH_BT` interfaces with the `BayesianTools` package, which contains several different Bayesian samplers. The default choice in `run_eDITH_BT` is DREAMzs [@Carraro2023]. We can run eDITH with the above-specified covariates:
+
+```{r, eval=FALSE}
+set.seed(1)
+out.bt.cov <- run_eDITH_BT(dataC, river, covariates)
+
+```
+
+The default option for `ll.type` is `norm`, which is suitable for eDNA concentration data.
+
+Alternatively, we can run eDITH via AEM covariates. By default, the first 10\% AEM eigenfunctions are used as covariates.
+
+```{r, eval=FALSE}
+set.seed(1)
+out.bt.aem <- run_eDITH_BT(dataC, river)
+
+```
+
+
+### Optimization
+
+Alternatively, an optimization method can be used to estimate the best-fit parameters of the eDITH model. Function `run_eDITH_optim` internally calls `optim` and its default Nelder-Mead method. The main options such as `covariates` and `ll.type` work in the same way as in `run_eDITH_BT`:
+
+```{r}
+set.seed(27)
+out.opt.aem <- run_eDITH_optim(dataC, river, n.AEM = 10, 
+	n.attempts = 1) 
+```
+
+For illustrative purposes, we here use a reduced number of AEM eigenfunctions (10) and a single optimization attempt. It is advisable to increase the number of optimization attempts (as in the default settings) to ensure convergence.
+
+We can qualitatively check the goodness of fit of the model:
+```{r, fig.width=6, fig.height=6}
+plot(out.opt.aem$C[dataC$ID], dataC$values, xlim=c(0,8e-12), ylim=c(0, 8e-12),
+     xlab = "Modelled concentration [mol m-3]", 
+     ylab = "Observed concentration [mol m-3]")
+abline(0,1)
+```
+
+And also display modelled concentrations across the river network, by using `rivnet`'s `plot` method:
+```{r, fig.width=6, fig.height=6}
+plot(river, out.opt.aem$C, colLevels=c(0, max(values), 1000), addLegend = FALSE, 
+     colPalette = hcl.colors(1000, "Reds 3", rev=T))
+rivnet::points_colorscale(river$AG$X[unique(dataC$ID)], river$AG$Y[unique(dataC$ID)],
+                          values)
+```
+
+Finally, we can have a look at the predicted map of relative taxon density (i.e., eDNA production rate $\mathbf{p}$)
+```{r, fig.width=7, fig.height=6}
+plot(river, out.opt.aem$p)
+```
+
+And the corresponding detection probability $\mathbf{p_D}$:
+```{r, fig.width=7, fig.height=6}
+plot(river, out.opt.aem$probDet)
+```
 
 
 # References
@@ -188,6 +325,37 @@ references:
   issued:
     year: 2018
 
+- id: Carraro2020
+  title: Environmental DNA allows upscaling spatial patterns of biodiversity in freshwater ecosystems
+  author:
+  - family: Carraro
+    given: L.
+  - family: Mächler
+    given: E.
+  - family: Wüthrich
+    given: R.  
+  - family: Altermatt
+    given: F.
+  container-title: Nature Communications
+  URL: 'https://doi.org/10.1038/s41467-020-17337-8'
+  type: article-journal
+  issued:
+    year: 2020
+
+- id: Carraro2021
+  title: How to design optimal eDNA sampling strategies for biomonitoring in river networks
+  author:
+  - family: Carraro
+    given: L.
+  - family: Stauffer
+    given: J. B.
+  - family: Altermatt
+    given: F.
+  container-title: Environmental DNA
+  URL: 'https://doi.org/10.1002/edn3.137'
+  type: article-journal
+  issued:
+    year: 2021
 
 - id: Carraro2023
   title: Modelling environmental DNA transport in rivers reveals highly resolved spatio-temporal biodiversity patterns
@@ -218,5 +386,6 @@ references:
     year: 2011
     
     
----    
+--- 
+   
 

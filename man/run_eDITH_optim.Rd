@@ -84,7 +84,7 @@ data(dataC)
 data(dataRead)
 
 ## fit eDNA concentration data - use AEMs as covariates
-set.seed(4)
+set.seed(27)
 out <- run_eDITH_optim(dataC, wigger, n.AEM = 10, 
 	n.attempts = 1) # reduced n.AEM, n.attempts for illustrative purposes
 	# it is recommended to attempt optimization several times to ensure convergence 
