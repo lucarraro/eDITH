@@ -20,13 +20,6 @@ knitr::opts_chunk$set(
 )
 ``` 
 
-```{r lib, echo = FALSE}
-suppressPackageStartupMessages(library(eDITH))
-suppressPackageStartupMessages(library(rivnet))
-suppressPackageStartupMessages(library(terra))
-
-```
-
 
 # Overview
 
