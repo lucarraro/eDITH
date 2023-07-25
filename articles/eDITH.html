@@ -69,8 +69,6 @@ Carraro</h4>
 
     
     
-<pre><code><span><span class="co">#&gt; Warning in rgl.init(initValue, onlyNULL): RGL: unable to open X11 display</span></span>
-<span><span class="co">#&gt; Warning: 'rgl.init' failed, running with 'rgl.useNULL = TRUE'.</span></span></code></pre>
 <div class="section level2">
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
@@ -104,7 +102,7 @@ diagnostics is provided</li>
 </h2>
 <p>The development version of <code>eDITH</code> can be installed from
 Github:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"lucarraro/eDITH"</span><span class="op">)</span></span></code></pre></div>
 <p>Among other packages, <code>eDITH</code> depends on
 <code>rivnet</code>, which in turn depends on the <code>traudem</code>
@@ -394,7 +392,7 @@ example in the river Wigger (Switzerland), whose <code>river</code>
 object can be called via <code>data(wigger)</code>. Such object can be
 built via the <code>rivnet</code> package as follows. Please refer to
 <code>rivnet</code> documentation for details on its functions.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Extract river from DEM</span></span>
 <span><span class="va">river</span> <span class="op">&lt;-</span> <span class="fu">rivnet</span><span class="fu">::</span><span class="fu"><a href="https://lucarraro.github.io/rivnet/reference/extract_river.html" class="external-link">extract_river</a></span><span class="op">(</span>outlet<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">637478</span>,<span class="fl">237413</span><span class="op">)</span>,</span>
 <span>                    EPSG<span class="op">=</span><span class="fl">21781</span>, <span class="co">#CH1903/LV03 coordinate system</span></span>
@@ -422,7 +420,7 @@ built via the <code>rivnet</code> package as follows. Please refer to
 </h3>
 <p>An example of eDNA concentration data for a given target taxon can be
 called as:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">dataC</span><span class="op">)</span></span></code></pre></div>
 <p><code>dataC</code> contains the following objects:</p>
 <ul>
@@ -437,7 +435,7 @@ measured (in mol m<sup>-3</sup>)</li>
 <p><code>dataC</code> contains eDNA values for 24 sampling sites, each
 of which has been sampled three times. In such case, the three different
 eDNA values are inserted in <code>dataC</code> as independent rows:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dataC</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="va">dataC</span><span class="op">$</span><span class="va">ID</span><span class="op">==</span><span class="fl">2</span><span class="op">)</span>,<span class="op">]</span></span>
 <span><span class="co">#&gt;    ID       values</span></span>
 <span><span class="co">#&gt; 1   2 0.000000e+00</span></span>
@@ -445,7 +443,7 @@ eDNA values are inserted in <code>dataC</code> as independent rows:</p>
 <span><span class="co">#&gt; 49  2 8.176798e-13</span></span></code></pre></div>
 <p>We can use function <code>rivnet::points_colorscale</code> to display
 the mean eDNA concentration values across the sampling sites:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sites</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">dataC</span><span class="op">$</span><span class="va">ID</span><span class="op">)</span></span>
 <span><span class="va">values</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">sites</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">ind</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">sites</span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span>
@@ -465,7 +463,7 @@ the mean eDNA concentration values across the sampling sites:</p>
 <p>We can define a set of covariates containing main landcover classes
 (urban areas, agricultural areas and forest) in addition to elevation
 and log-scaled drainage area:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">covariates</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>urban <span class="op">=</span> <span class="va">river</span><span class="op">$</span><span class="va">SC</span><span class="op">$</span><span class="va">locCov</span><span class="op">$</span><span class="va">landcover_1</span>,</span>
 <span>                         agriculture <span class="op">=</span> <span class="va">river</span><span class="op">$</span><span class="va">SC</span><span class="op">$</span><span class="va">locCov</span><span class="op">$</span><span class="va">landcover_2</span>,</span>
 <span>                         forest <span class="op">=</span> <span class="va">river</span><span class="op">$</span><span class="va">SC</span><span class="op">$</span><span class="va">locCov</span><span class="op">$</span><span class="va">landcover_3</span>,</span>
@@ -479,14 +477,14 @@ and log-scaled drainage area:</p>
 package, which contains several different Bayesian samplers. The default
 choice in <code>run_eDITH_BT</code> is DREAMzs <span class="citation">(Carraro, Blackman, and Altermatt 2023)</span>. We can
 run eDITH with the above-specified covariates:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">out.bt.cov</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_eDITH_BT.html">run_eDITH_BT</a></span><span class="op">(</span><span class="va">dataC</span>, <span class="va">river</span>, <span class="va">covariates</span><span class="op">)</span></span></code></pre></div>
 <p>The default option for <code>ll.type</code> is <code>norm</code>,
 which is suitable for eDNA concentration data.</p>
 <p>Alternatively, we can run eDITH via AEM covariates. By default, the
 first 10% AEM eigenfunctions are used as covariates.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">out.bt.aem</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_eDITH_BT.html">run_eDITH_BT</a></span><span class="op">(</span><span class="va">dataC</span>, <span class="va">river</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -499,7 +497,7 @@ best-fit parameters of the eDITH model. Function
 default Nelder-Mead method. The main options such as
 <code>covariates</code> and <code>ll.type</code> work in the same way as
 in <code>run_eDITH_BT</code>:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">27</span><span class="op">)</span></span>
 <span><span class="va">out.opt.aem</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_eDITH_optim.html">run_eDITH_optim</a></span><span class="op">(</span><span class="va">dataC</span>, <span class="va">river</span>, n.AEM <span class="op">=</span> <span class="fl">10</span>, </span>
 <span>    n.attempts <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> </span></code></pre></div>
@@ -508,7 +506,7 @@ eigenfunctions (10) and a single optimization attempt. It is advisable
 to increase the number of optimization attempts (as in the default
 settings) to ensure convergence.</p>
 <p>We can qualitatively check the goodness of fit of the model:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">out.opt.aem</span><span class="op">$</span><span class="va">C</span><span class="op">[</span><span class="va">dataC</span><span class="op">$</span><span class="va">ID</span><span class="op">]</span>, <span class="va">dataC</span><span class="op">$</span><span class="va">values</span>, xlim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">8e-12</span><span class="op">)</span>, ylim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">8e-12</span><span class="op">)</span>,</span>
 <span>     xlab <span class="op">=</span> <span class="st">"Modelled concentration [mol m-3]"</span>, </span>
 <span>     ylab <span class="op">=</span> <span class="st">"Observed concentration [mol m-3]"</span><span class="op">)</span></span>
@@ -516,7 +514,7 @@ settings) to ensure convergence.</p>
 <p><img src="Cobs.png" width="80%"></p>
 <p>And also display modelled concentrations across the river network, by
 using <code>rivnet</code>’s <code>plot</code> method:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">river</span>, <span class="va">out.opt.aem</span><span class="op">$</span><span class="va">C</span>, colLevels<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">values</span><span class="op">)</span>, <span class="fl">1000</span><span class="op">)</span>, addLegend <span class="op">=</span> <span class="cn">FALSE</span>, </span>
 <span>     colPalette <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/palettes.html" class="external-link">hcl.colors</a></span><span class="op">(</span><span class="fl">1000</span>, <span class="st">"Reds 3"</span>, rev<span class="op">=</span><span class="cn">T</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu">rivnet</span><span class="fu">::</span><span class="fu">points_colorscale</span><span class="op">(</span><span class="va">river</span><span class="op">$</span><span class="va">AG</span><span class="op">$</span><span class="va">X</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">dataC</span><span class="op">$</span><span class="va">ID</span><span class="op">)</span><span class="op">]</span>, <span class="va">river</span><span class="op">$</span><span class="va">AG</span><span class="op">$</span><span class="va">Y</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">dataC</span><span class="op">$</span><span class="va">ID</span><span class="op">)</span><span class="op">]</span>,</span>
@@ -525,12 +523,12 @@ using <code>rivnet</code>’s <code>plot</code> method:</p>
 <p><img src="mapC.png" width="80%"></p>
 <p>Finally, we can have a look at the predicted map of relative taxon
 density (i.e., eDNA production rate <span class="math inline">\(\mathbf{p}\)</span>)</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">river</span>, <span class="va">out.opt.aem</span><span class="op">$</span><span class="va">p</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="st">'eDNA production rate [mol m-2 s-1]'</span><span class="op">)</span></span></code></pre></div>
 <p><img src="mapp.png" width="80%"></p>
 <p>And the corresponding detection probability <span class="math inline">\(\mathbf{p_D}\)</span>:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">river</span>, <span class="va">out.opt.aem</span><span class="op">$</span><span class="va">probDet</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="st">'Detection probability'</span><span class="op">)</span></span></code></pre></div>
 <p><img src="mappD.png" width="80%"></p>
