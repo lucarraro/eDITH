@@ -16,6 +16,7 @@ Description: Runs the eDITH (eDNA Integrating Transport and Hydrology) model,
   checks is provided.
 License: MIT + file LICENSE
 Encoding: UTF-8
+Depends: R (>= 3.6)
 Suggests: 
     knitr,
     rmarkdown,
