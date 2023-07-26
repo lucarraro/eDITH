@@ -1,6 +1,6 @@
 Package: eDITH
 Type: Package
-Title: Model Transport of Environmental DNA In River Networks
+Title: Model Transport of Environmental DNA in River Networks
 Version: 0.1.0
 Authors@R: 
     c(person("Luca", "Carraro", 
