@@ -1,7 +1,8 @@
 ---
 title: "An introduction to eDITH"
 author: "Luca Carraro"
-output: 
+output:
+  #bookdown::pdf_document2:
     bookdown::html_document2: #rmarkdown::html_vignette: # pdf_document 
       base_format: rmarkdown::html_vignette
       toc: true
@@ -65,11 +66,11 @@ The key assumptions underlying the eDITH model are:
 ## The governing equations
 
 The main equation of the eDITH model results from a mass balance of eDNA across a cross-section of a river, and it reads:
-$$
+
 \begin{equation}
 C_j = \frac{1}{Q_j}\sum_{i \in \gamma(j)} p_i A_{S,i} \exp\left(-\frac{L_{ij}}{\overline{v_{ij}} \tau}\right)
 \end{equation}
-$$
+
 where:
 
 * $C_j$ is the eDNA concentration at a sampling site $j$;
@@ -85,9 +86,10 @@ Assuming that the morphology and hydrology of the river network are known (and t
 
 It is often convenient (both from a modelling and interpretation viewpoint) to express the eDNA production rate $p_i$ as a function of environmental covariates, possibly related to the spatial patterns of the investigated taxon:
 
-$$
+\begin{displaymath}
 p_i = p_0 \exp\left( \boldsymbol\beta^T \mathbf{X}(i) \right)
-$$
+\end{displaymath}
+
 where $\mathbf{X}(i)$ is a vector of covariates evaluated at node $i$; $\boldsymbol\beta$ a vector of covariate effect sizes; and $p_0$ a baseline production rate, i.e., the eDNA production rate at a site where all covariates are at a null level. This reduces the number of unknowns from $N$ (size of $\mathbf{p}$) to the number of selected covariates (length of $\boldsymbol\beta$) plus one ($p_0$).
 
 If the eDNA data are in the form of read counts, the above equations remain applicable. Indeed, $C_j$ would play the role of the expected read number at site $j$ (proportional to the underlying eDNA concentration, as per the initial hypothesis). Consequently, $\mathbf{p}$ would in this case represent the eDNA production rates multiplied by such constant of proportionality.
@@ -108,7 +110,7 @@ The river network must be provided as a `river` object, obtained via the `rivnet
 
 Optionally, covariates can be passed to `run_eDITH_BT` and `run_eDITH_optim` as a data frame. Function `covariate_river` of `rivnet` allows computing covariate values from raster maps and a `river` object. If covariates are not provided, asymmetric eigenvector maps (AEMs) are calculated on the river network and used as covariates. AEMs [@blanchet2008] are mutually orthogonal spatial variables obtained by a spatial filtering technique that considers space in an asymmetric way, and are thus suitable to model species distributions in river networks. It is of course possible to combine user-provided covariates and AEMs, as detailed in the flowchart below:
 
-```{r overview, echo=FALSE, fig.cap="Flowchart for the choice of covariates used to fit the eDITH model in `run_eDITH_BT` and `run_eDITH_optim`.", out.width = '90%'}
+```{r overview, echo=FALSE, fig.cap="Flowchart for the choice of covariates used to fit the eDITH model.", out.width = '90%'}
 knitr::include_graphics("flowchart_cov.png")
 
 ```
