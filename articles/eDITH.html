@@ -59,8 +59,8 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="" class="logo" alt=""><h1>An introduction to eDITH</h1>
-                        <h4 data-toc-skip class="author">Luca
-Carraro</h4>
+                        <h4 data-toc-skip class="author">Luca Carraro,
+Florian Altermatt</h4>
             
       
       
@@ -74,24 +74,52 @@ Carraro</h4>
 </h2>
 <p><code>eDITH</code> (<strong>eD</strong>NA
 <strong>I</strong>ntegrating <strong>T</strong>ransport and
-<strong>H</strong>ydrology) allows interpreting environmental DNA data
-collected from river networks. It implements the eDITH model, which
+<strong>H</strong>ydrology) allows interpreting environmental DNA (eDNA)
+data collected from river networks. It implements the eDITH model, which
 couples a geomorphological and hydrological characterization of a
 catchment, eDNA transport and decay dynamics, and a species distribution
-model, and allows transforming pointwise eDNA data collected at a
-catchment into predicted maps of taxon density.</p>
+model, to transform pointwise water eDNA data (sensu <span class="citation">(Pawlowski, Apothéloz-Perret-Gentil, and Altermatt
+2020)</span>) collected at a catchment into predicted maps of taxon
+density.</p>
 <p>Features:</p>
 <ul>
-<li>It provides estimations of detection probability of a taxon across a
-whole catchment based on spatially replicated eDNA data</li>
+<li>It provides estimations of detection probability of any number of
+taxa across a whole catchment based on spatially replicated eDNA data of
+these taxa.</li>
 <li>It can handle both eDNA concentration data (e.g., from qPCR) and
-metabarcoding (read counts) data</li>
+metabarcoding (read counts) data of any taxonomic group, and can be used
+to predict maps of taxon (say, species, genus or family level), OTU or
+ASV density.</li>
 <li>Model fit can be performed via Bayesian techniques or optimization
-algorithms</li>
+algorithms.</li>
 <li>Covariates can be specified by the user and/or selected by means of
-Asymmetric Eigenvector Maps (AEMs)</li>
+Asymmetric Eigenvector Maps (AEMs).</li>
 <li>An interface to the <code>DHARMa</code> package for residual
-diagnostics is provided</li>
+diagnostics is provided.</li>
+</ul>
+<p>Scope (where do we write this?):</p>
+<ul>
+<li>The eDITH model is designed to work for river networks not
+containing lakes, reservoirs, or bifurcations in the downstream
+direction (e.g., braided or artificial channels creating loops in the
+river network).</li>
+<li>The spatial extent of the eDNA sampling must adequately cover the
+entire river network, in order to allow the model to make robust
+predictions. As a rule of thumb:
+<ul>
+<li>Ideally, there should be one sampling site each 10–20 km<span class="math inline">\(^2\)</span> of drained area.</li>
+<li>The mean along-stream distance between sampling sites should be in
+the order of magnitude of some (tens of) kilometers. eDNA samples that
+are collected more than 50 km apart from each other are unlikely to
+contain overlapping information (see 3.1).</li>
+<li>All main tributaries of a river network should be sampled. Ideally,
+sampling sites should be located just upstream of a confluence, so that
+the independent signals from the joining tributaries can be gauged. See
+<span class="citation">(Carraro, Stauffer, and Altermatt 2021)</span>
+for further information on optimal eDNA sampling strategies.</li>
+</ul>
+</li>
+<li>Something on microbes vs. vertebrates</li>
 </ul>
 <p><code>eDITH</code> requires the use of river networks defined as
 <code>river</code> objects, which can be built via the
@@ -122,26 +150,34 @@ carefully.</p>
 <p>The eDITH model <span class="citation">(Carraro et al. 2018, 2020;
 Carraro, Stauffer, and Altermatt 2021; Carraro, Blackman, and Altermatt
 2023)</span> makes use of spatially replicated eDNA measurements from a
-river network to infer the spatial distribution of a taxon of interest.
-The key underlying concept is that eDNA particles are advected
-downstream by streamflow, and hence an eDNA sample is not only
-representative of the location where it is taken, but it provides
-information (about taxon abundance, in the case of qPCR single-species
-data; or biodiversity, for metabarcoding data) for a certain area
-upstream of the sampling location. By exploiting information from
-multiple sampling sites distributed in space, the eDITH model is able to
-disentangle the various sources of eDNA shedding (and hence, of the
-target taxon’s abundance). As a result, eDITH complements pointwise eDNA
-measurements by projecting taxon distributions (and thus biodiversity
-information) into space-filling catchment maps.</p>
+river network to infer the spatial distribution of any taxon (or OTU, or
+ASV; hereafter simply “taxon”) of interest. The key underlying concept
+is that eDNA particles are advected downstream by streamflow, and hence
+an eDNA sample is not only representative of the location where it is
+taken, but it provides information about taxon abundance (in the case of
+qPCR single-species data) or biodiversity (for metabarcoding data) for a
+certain area upstream of the sampling location. By exploiting
+information from multiple sampling sites distributed in space, and
+embedding a model for transport and concurrent decay of DNA, the eDITH
+model is able to disentangle the various sources of eDNA shedding (and
+hence, of the target taxon’s abundance). As a result, eDITH complements
+pointwise eDNA measurements by projecting taxon distributions (and thus
+biodiversity information) into space-filling catchment maps.</p>
 <p>The key assumptions underlying the eDITH model are:</p>
 <ul>
 <li>The eDNA production (shedding) rate of a taxon in stream water is
-proportional to its density. The validity of this assumption is
-restricted to the time point when eDNA is sampled (that is, the fact
-that a taxon might release more eDNA for equal biomass at a given season
-is irrelevant, as eDNA samples taken at different seasons would need to
-be considered separately).</li>
+proportional to its density<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content='&lt;p&gt;In particular, it is assumed that taxon density is
+equivalent to both biomass and abundance. Although shedding rates have
+been shown to scale allometrically with organismal mass &lt;span class="citation"&gt;(Yates et al. 2020)&lt;/span&gt;, the distinction between
+biomass and abundance is, for modelling purposes, irrelevant. In
+essence, the patterns modelled by eDITH are those of a quantity that is
+proportional to the eDNA production rate–be it biomass, abundance or
+allometrically scaled mass.&lt;/p&gt;'><sup>1</sup></a> <span class="citation">(Lodge et al. 2012;
+Apothéloz-Perret-Gentil et al. 2017)</span>. The validity of this
+assumption is restricted to the time point when eDNA is sampled. Thus,
+it is irrelevant if a taxon varies in its release of DNA across the
+season, as long as DNA released is proportionate to taxon density at the
+time of sampling).</li>
 <li>The decay of eDNA can be expressed by first order kinetics (i.e.,
 the rate of change of eDNA concentration decreases linearly with
 time).</li>
@@ -155,12 +191,14 @@ life of 2.77 h), we would be able to measure only about 50% of the
 concentration that we would measure 10 km upstream, and 3 % of the
 concentration that we would measure 50 km upstream<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;This estimate considers a channel with no lateral
 inputs. If lateral inputs with water not containing the target eDNA were
-considered, these percentages would inevitably decrease&lt;/p&gt;"><sup>1</sup></a>. As a rule of thumb,
+considered, these percentages would inevitably decrease&lt;/p&gt;"><sup>2</sup></a>. As a rule of thumb,
 sites that are more than 50 km apart (along the river network) should be
-considered as independent samples.</li>
-<li>Laboratory procedures (PCR, DNA extraction, sequencing) can produce
-errors in the final eDNA value (eDNA concentration or read number), but
-there should be no systematic bias.</li>
+considered as independent samples. See also <span class="citation">(Deiner and Altermatt 2014; Pont et al. 2018)</span>
+with respect to transport distances of eDNA.</li>
+<li>Variability in DNA detection through sampling (e.g., filtration) or
+laboratory procedures (e.g. DNA extraction, Polymerase Chain Reaction
+(PCR), or sequencing) do not introduce a systematic bias in DNA
+concentrations across samples.</li>
 <li>If eDITH is used to model metabarcoding data, the expected read
 count at a given site for a given taxon is assumed to be proportional to
 the underlying eDNA concentration.</li>
@@ -174,6 +212,11 @@ molecules but rather to the bacteria lifetime.</li>
 spatial distribution of terrestrial taxa, provided that the assumption
 of proportionality between eDNA production rate and taxon density
 holds.</li>
+<li>On equal conditions during a sampling campaign</li>
+<li>Well mixed samples</li>
+<li>River network discretized in reaches. the spatial resolution can be
+freely tuned via rivnet. The ensemble of reaches covers the entire river
+network. Node = reach</li>
 </ul>
 </div>
 <div class="section level3">
@@ -188,8 +231,8 @@ C_j = \frac{1}{Q_j}\sum_{i \in \gamma(j)} p_i A_{S,i}
 <p>where:</p>
 <ul>
 <li>
-<span class="math inline">\(C_j\)</span> is the eDNA concentration
-at a sampling site <span class="math inline">\(j\)</span>;</li>
+<span class="math inline">\(C_j\)</span> is the DNA concentration at
+a sampling site <span class="math inline">\(j\)</span>;</li>
 <li>
 <span class="math inline">\(Q_j\)</span> is the water discharge in
 <span class="math inline">\(j\)</span>;</li>
@@ -220,16 +263,18 @@ known (and thus lengths, areas and discharges), the above equation links
 eDNA concentrations to the unknown parameters <span class="math inline">\(\tau\)</span> and <span class="math inline">\(\mathbf{p}=\left( p_1, \dots, p_N\right)\)</span>
 (where <span class="math inline">\(N\)</span> is the number of network
 nodes). While the former is linked to the behaviour of DNA in stream
-water (and could in principle be measured, or at least its value
-constrained), the estimation of the latter is actually the goal of the
+water (and could in principle be measured, or at least its value be
+constrained), the estimation of the latter is the actual goal of the
 eDITH model. Contrasting observed and modelled eDNA concentrations thus
 enables the estimation of maps of <span class="math inline">\(\mathbf{p}\)</span> across a catchment, and hence
-of relative taxon density, given the initial hypothesis.</p>
+of relative taxon density, given the initial assumption.</p>
 <p>It is often convenient (both from a modelling and interpretation
 viewpoint) to express the eDNA production rate <span class="math inline">\(p_i\)</span> as a function of environmental
 covariates, possibly related to the spatial patterns of the investigated
 taxon:</p>
-<p></p>
+<p><span class="math display">\[\begin{equation}
+p_i = p_0 \exp\left( \boldsymbol\beta^T \mathbf{X}(i) \right)
+\end{equation}\]</span></p>
 <p>where <span class="math inline">\(\mathbf{X}(i)\)</span> is a vector
 of covariates evaluated at node <span class="math inline">\(i\)</span>;
 <span class="math inline">\(\boldsymbol\beta\)</span> a vector of
@@ -260,7 +305,7 @@ model parameters</a>).</p>
 count) if the corresponding reach were detached from the river network
 (that is, in the absence of upstream inputs, with the water discharge in
 the reach being equal to the locally produced discharge<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content='&lt;p&gt;Calculated as the actual discharge &lt;span class="math inline"&gt;\(Q_j\)&lt;/span&gt; minus the sum of discharges of the
-upstream reaches that are directly connected to &lt;span class="math inline"&gt;\(j\)&lt;/span&gt;&lt;/p&gt;'><sup>2</sup></a>). This is then
+upstream reaches that are directly connected to &lt;span class="math inline"&gt;\(j\)&lt;/span&gt;&lt;/p&gt;'><sup>3</sup></a>). This is then
 transformed into a detection probability value, calculated as the
 probability of observing a non-null eDNA value under the assumed error
 probability distribution and the expected value <span class="math inline">\(\widetilde{C_j}\)</span>.</p>
@@ -279,7 +324,7 @@ frame with components <code>values</code> (eDNA values measured for a
 given taxon and a given time point) and <code>ID</code> (identifiers of
 the network nodes at the AG level<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;Please refer to the documentation of &lt;code&gt;OCNet&lt;/code&gt;
 for an overview of the aggregation levels of a &lt;code&gt;river&lt;/code&gt;
-object.&lt;/p&gt;"><sup>3</sup></a> where the sampling sites are located). To
+object.&lt;/p&gt;"><sup>4</sup></a> where the sampling sites are located). To
 identify the latter, function <code>locate_site</code> from
 <code>rivnet</code> can be used.</p>
 <p>The river network must be provided as a <code>river</code> object,
@@ -342,7 +387,7 @@ divided by a time unit. For instance, if <code>data$values</code>
 contains eDNA concentration data in mol m<sup>-3</sup> and the river
 object contains discharge (<code>river$AG$Q</code>) in
 m<sup>3</sup>s<sup>-1</sup> and areas<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content='&lt;p&gt;This depends on the resolution of the DEM used to obtain
-the river network in &lt;code&gt;&lt;a href="https://lucarraro.github.io/rivnet/reference/extract_river.html" class="external-link"&gt;rivnet::extract_river&lt;/a&gt;&lt;/code&gt;&lt;/p&gt;'><sup>4</sup></a> in m<sup>2</sup>, <span class="math inline">\(p_0\)</span> is expressed in mol m<sup>-2</sup>
+the river network in &lt;code&gt;&lt;a href="https://lucarraro.github.io/rivnet/reference/extract_river.html" class="external-link"&gt;rivnet::extract_river&lt;/a&gt;&lt;/code&gt;&lt;/p&gt;'><sup>5</sup></a> in m<sup>2</sup>, <span class="math inline">\(p_0\)</span> is expressed in mol m<sup>-2</sup>
 s<sup>-1</sup> (i.e. amount of eDNA shed per unit area and unit time).
 In the case of read count data, the unit for <span class="math inline">\(p_0\)</span> might look weird; this is because, in
 this case, <span class="math inline">\(p_0\)</span> embeds a constant
@@ -538,6 +583,12 @@ density (i.e., eDNA production rate <span class="math inline">\(\mathbf{p}\)</sp
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
 <div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-apotheloz2017" class="csl-entry">
+Apothéloz-Perret-Gentil, L., A. Cordonier, F. Straub, J. Iseli, and J.
+Pawlowski. 2017. <span>“Taxonomy-Free Molecular Diatom Index for
+High-Throughput eDNA Biomonitoring.”</span> <em>Molecular Ecology
+Resources</em>. <a href="https://doi.org/10.1111/1755-0998.12668" class="external-link">https://doi.org/10.1111/1755-0998.12668</a>.
+</div>
 <div id="ref-blanchet2008" class="csl-entry">
 Blanchet, F. G., P. Legendre, and D. Borcard. 2008. <span>“Modelling
 Directional Spatial Processes in Ecological Data.”</span> <em>Ecological
@@ -566,10 +617,41 @@ Carraro, L., J. B. Stauffer, and F. Altermatt. 2021. <span>“How to
 Design Optimal eDNA Sampling Strategies for Biomonitoring in River
 Networks.”</span> <em>Environmental DNA</em>. <a href="https://doi.org/10.1002/edn3.137" class="external-link">https://doi.org/10.1002/edn3.137</a>.
 </div>
+<div id="ref-Deiner2014" class="csl-entry">
+Deiner, K., and F. Altermatt. 2014. <span>“Transport Distance of
+Invertebrate Environmental DNA in a Natural River.”</span> <em>PLOS
+ONE</em>. <a href="https://doi.org/10.1371/journal.pone.0088786" class="external-link">https://doi.org/10.1371/journal.pone.0088786</a>.
+</div>
 <div id="ref-linden2011" class="csl-entry">
 Lindén, A., and S. Mäntyniemi. 2011. <span>“Using the Negative Binomial
 Distribution to Model Overdispersion in Ecological Count Data.”</span>
 <em>Ecology</em>. <a href="https://doi.org/10.1890/10-1831.1" class="external-link">https://doi.org/10.1890/10-1831.1</a>.
+</div>
+<div id="ref-lodge2012" class="csl-entry">
+Lodge, D. M., C. R. Turner, C. L. Jerde, M. A. Barnes, L. Chadderton, S.
+P. Egan, J. L. Feder, A. R. Mahon, and M. E. Pfrender. 2012.
+<span>“Conservation in a Cup of Water. Estimating Biodiversity and
+Population Abundance from Environmental DNA.”</span> <em>Molecular
+Ecology</em>. <a href="https://doi.org/10.1111/j.1365-294X.2012.05600.x" class="external-link">https://doi.org/10.1111/j.1365-294X.2012.05600.x</a>.
+</div>
+<div id="ref-pawlowski2020" class="csl-entry">
+Pawlowski, J., L. Apothéloz-Perret-Gentil, and F. Altermatt. 2020.
+<span>“Environmental DNA. What’s Behind the Term? Clarifying the
+Terminology and Recommendations for Its Future Use in
+Biomonitoring.”</span> <em>Molecular Ecology</em>. <a href="https://doi.org/10.1111/mec.15643" class="external-link">https://doi.org/10.1111/mec.15643</a>.
+</div>
+<div id="ref-Pont2018" class="csl-entry">
+Pont, D., M. Rocle, A. Valentini, R. Civade, J. Pauline, A. Maire, N.
+Roset, M. Schabuss, H. Zornig, and T. Dejean. 2018. <span>“Environmental
+DNA Reveals Quantitative Patterns of Fish Biodiversity in Large Rivers
+Despite Its Downstream Transportation.”</span> <em>Scientific
+Reports</em>. <a href="https://doi.org/10.1038/s41598-018-28424-8" class="external-link">https://doi.org/10.1038/s41598-018-28424-8</a>.
+</div>
+<div id="ref-yates2020" class="csl-entry">
+Yates, M. C., D. M. Glaser, J. R. Post, M. E. Cristescu, D. J. Fraser,
+and A. M. Derry. 2020. <span>“The Relationship Between eDNA Particle
+Concentration and Organism Abundance in Nature Is Strengthened by
+Allometric Scaling.”</span> <em>Molecular Ecology</em>. <a href="https://doi.org/10.1111/mec.15543" class="external-link">https://doi.org/10.1111/mec.15543</a>.
 </div>
 </div>
 </div>
