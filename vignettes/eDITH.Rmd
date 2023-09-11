@@ -28,7 +28,7 @@ knitr::opts_chunk$set(
 Features:
 
 * It provides estimations of detection probability of any number of taxa across a whole catchment based on spatially replicated eDNA data of these taxa.
-* It can handle both eDNA concentration data (e.g., from qPCR) and metabarcoding (read counts) data of any taxonomic group, and can be used to predict maps of taxon (say, species, genus or family level), OTU or ASV density.
+* It can handle both DNA concentration data (e.g., from qPCR) and metabarcoding (read counts) data of any taxonomic group, and can be used to predict maps of density of taxa (say, at species, genus or family level), OTUs (Operational Taxonomic Units) or ASVs (Amplicon Sequence Variants).
 * Model fit can be performed via Bayesian techniques or optimization algorithms.
 * Covariates can be specified by the user and/or selected by means of Asymmetric Eigenvector Maps (AEMs).
 * An interface to the `DHARMa` package for residual diagnostics is provided.
@@ -49,15 +49,16 @@ Among other packages, `eDITH` depends on `rivnet`, which in turn depends on the 
 
 ## Overview and underlying assumptions
 
-The eDITH model [@carraro2018; @Carraro2020; @Carraro2021; @Carraro2023] makes use of spatially replicated eDNA measurements from a river network to infer the spatial distribution of any taxon (or OTU, or ASV; hereafter simply "taxon") of interest. The key underlying concept is that eDNA particles are advected downstream by streamflow, and hence an eDNA sample is not only representative of the location where it is taken, but it provides information about taxon abundance (in the case of qPCR single-species data) or biodiversity (for metabarcoding data) for a certain area upstream of the sampling location. By exploiting information from multiple sampling sites distributed in space, and embedding a model for transport and concurrent decay of DNA, the eDITH model is able to disentangle the various sources of eDNA shedding (and hence, of the target taxon's abundance). As a result, eDITH complements pointwise eDNA measurements by projecting taxon distributions (and thus biodiversity information) into space-filling catchment maps.
+The eDITH model [@carraro2018; @Carraro2020; @Carraro2021; @Carraro2023] makes use of spatially replicated eDNA measurements from a river network to infer the spatial distribution of any taxon (or OTU, or ASV; hereafter simply "taxon") of interest. The key underlying concept is that eDNA particles are advected downstream by streamflow, and hence an eDNA sample is not only representative of the location where it is taken, but it provides information about taxon abundance (in the case of qPCR single-species data) or biodiversity (for metabarcoding data) for a certain area upstream of the sampling location. By exploiting information from multiple sampling sites distributed in space, and embedding a model for transport and concurrent decay of DNA, the eDITH model is able to disentangle the various sources of DNA shedding (and hence, of the target taxon's abundance). As a result, eDITH complements pointwise eDNA measurements by projecting taxon distributions (and thus biodiversity information) into space-filling catchment maps.
 
-### Shedding and decay rates
-The eDNA production (i.e., shedding) rate of a taxon in stream water is assumed to be proportional to its density^[In particular, it is assumed that taxon density is equivalent to both biomass and abundance. Although shedding rates have been shown to scale allometrically with organismal mass [@yates2020], the distinction between biomass and abundance is, for modelling purposes, irrelevant. In essence, the patterns modelled by eDITH are those of a quantity that is proportional to the eDNA production rate--be it biomass, abundance or allometrically scaled mass.] [@lodge2012; @apotheloz2017]. The validity of this assumption is restricted to the time point when eDNA is sampled. Thus, it is irrelevant if a taxon varies in its release of DNA across the season, as long as DNA released is proportionate to taxon density at the time of sampling). For the same reason, hydrological variables (such as discharge and velocity) are assumed to be constant in time (not in space!) across the duration of a sampling campaign (for instance, if multiple days are required to cover all sampling sites, these days would be assumed to constitute a unique time point).
+### DNA production and decay rates
+The DNA production (i.e., shedding) rate of a taxon in stream water is assumed to be proportional to its density^[In particular, it is assumed that taxon density is equivalent to both biomass and abundance. Although shedding rates have been shown to scale allometrically with organismal mass [@yates2020], the distinction between biomass and abundance is, for modelling purposes, irrelevant. In essence, the patterns modelled by eDITH are those of a quantity that is proportional to the DNA production rate--be it biomass, abundance or allometrically scaled mass.] [@lodge2012; @apotheloz2017]. The validity of this assumption is restricted to the time point when eDNA is sampled. Thus, it is irrelevant if a taxon varies in its release of DNA across the season, as long as DNA released is proportionate to taxon density at the time of sampling). For the same reason, hydrological variables (such as discharge and velocity) are assumed to be constant in time (not in space!) across the duration of a sampling campaign (for instance, if multiple days are required to cover all sampling sites, these days would be assumed to constitute a unique time point).
 
-The decay of eDNA can be expressed by first order kinetics (i.e., the rate of change of DNA concentration decreases linearly with time). Similarly to the production rate, it is assumed that a single value of decay time is representative for a given taxon at a given time point.
+The decay of DNA is assumed to be expressed by first order kinetics (i.e., the rate of change of DNA concentration decreases linearly with time). Similarly to the production rate, it is assumed that a single value of decay time is representative for a given taxon at a given time point.
 
 ### Sampling design
 The spatial extent of the eDNA sampling must adequately cover the entire river network, in order to allow the model to make robust predictions. As a rule of thumb, there should be one sampling site each 10--20 km^2^ of drained area.
+
 Moreover, all main tributaries of a river network should be sampled. Ideally, sampling sites should be located just upstream of a confluence, so that the independent signals from the joining tributaries can be gauged. See [@Carraro2021] for further information on optimal eDNA sampling strategies.
 
 The mean distance (along the river network) between eDNA samples should not be too large, otherwise the eDNA found at an upstream site would be totally depleted before reaching the next downstream site. In this case, the eDITH model could not make inferences based on these multiple sites. To make an example, if we consider first order kinetics, a water velocity of 1 ms^-1^ and a decay time of 4 h (i.e., an half life of 2.77 h), we would be able to measure only about 50\% of the concentration that we would measure 10 km upstream, and 3 \% of the concentration that we would measure 50 km upstream^[This estimate considers a channel with no lateral inputs. If lateral inputs with water not containing the target eDNA were considered, these percentages would inevitably decrease]. As a rule of thumb, sites that are more than 50 km apart (along the river network) should be considered as independent samples. See also [@Deiner2014; @Pont2018] with respect to transport distances of eDNA.
@@ -67,15 +68,17 @@ Finally, the model assumes that eDNA is well mixed in the water column, and/or t
 ### Measurement errors
 Variability in DNA detection through sampling (e.g., filtration) or laboratory procedures (e.g. DNA extraction, Polymerase Chain Reaction (PCR), or sequencing) do not introduce a systematic bias in DNA concentrations across samples. 
 
-If eDITH is used to model metabarcoding data, the expected read count at a given site for a given taxon is assumed to be proportional to the underlying eDNA concentration.
+If eDITH is used to model metabarcoding data, the expected read count at a given site for a given taxon is assumed to be proportional to the underlying DNA concentration.
 
 Replicated eDNA measures at the same site and time point are treated as independent measures. No distinctions is made on whether these are physical (i.e., different water samples) or laboratory (different PCR runs) replicates.
 
 
 ### What taxa can be modelled?
-In principle, the eDITH model is suitable for aquatic macroorganisms that shed their eDNA into stream water. However, the model can be extended for microorganisms that are sampled in their entirety (e.g., free floating bacteria), in which case their upstream sources can be considered as biofilm colonies, and the decay time does not refer to DNA molecules but rather to the bacteria lifetime.
+In principle, the eDITH model is suitable for aquatic macroorganisms that shed their DNA into stream water. However, the model can be extended for microorganisms that are sampled in their entirety (e.g., free floating bacteria), in which case their upstream sources can be considered as biofilm colonies, and the decay time does not refer to DNA molecules but rather to the bacteria lifetime.
 
-Similarly, the eDITH model can be applied also to estimate the spatial distribution of terrestrial taxa, provided that the assumption of proportionality between eDNA production rate and taxon density holds. In this case, the spatial unit on which predictions are performed is the subcatchment, i.e., the portion of land that directly drains towards the associated reach.  
+The eDITH model does not make a distinction on whether the eDNA data is referred to an assigned taxon (say, at a species, genus or family level) or an unassigned cluster such as OTUs or ASVs. What matters is that the assumptions on production and decay rates (see [DNA production and decay rates](#dna-production-and-decay-rates)) must hold.
+
+In principle, it is also possible to estimate the spatial distribution of terrestrial, rather than aquatic, taxa, provided that the assumption of proportionality between DNA production rate and taxon density holds. In this case, the spatial unit on which predictions are performed is the subcatchment, i.e., the portion of land that directly drains towards the associated reach.  
 
 
 ### River network model
@@ -95,30 +98,30 @@ C_j = \frac{1}{Q_j}\sum_{i \in \gamma(j)} p_i A_{S,i} \exp\left(-\frac{L_{ij}}{\
 
 where:
 
-* $C_j$ is the DNA concentration at a sampling site $j$;
+* $C_j$ is the DNA concentration at a sampling site $j$ (strictly speaking, $j$ is the reach where a sampling site is located);
 * $Q_j$ is the water discharge in $j$; 
-* $\gamma(j)$ identifies the set of nodes (i.e., reaches)  upstream of $j$;
-* $p_i$ is the eDNA production rate at an upstream node $i$;
-* $A_{S,i}$ is the source area in $i$ (i.e., extent of the node; considering a river reach, this could e.g. be equal by the product of its length and width);
+* $\gamma(j)$ identifies the set of reaches upstream of $j$;
+* $p_i$ is the DNA production rate at an upstream reach $i$;
+* $A_{S,i}$ is the source area in $i$ (i.e., extent of the node; considering a river reach and an aquatic taxon, this could e.g. be equal by the product of its length and width);
 * $L_{ij}$ is the length of the along-stream path joining $i$ to $j$;
 * $\overline{v_{ij}}$ is the average water velocity along $L_{ij}$;
-* $\tau$ is a characteristic decay time for eDNA in stream water.
+* $\tau$ is a characteristic decay time for DNA in stream water.
 
-Assuming that the morphology and hydrology of the river network are known (and thus lengths, areas and discharges), the above equation links eDNA concentrations to the unknown parameters $\tau$ and $\mathbf{p}=\left( p_1, \dots, p_N\right)$ (where $N$ is the total number of reaches). While the former is linked to the behaviour of DNA in stream water (and could in principle be measured, or at least its value be constrained), the estimation of the latter is the actual goal of the eDITH model. Contrasting observed and modelled eDNA concentrations thus enables the estimation of maps of $\mathbf{p}$ across a catchment, and hence of relative taxon density, given the initial assumption.
+Assuming that the morphology and hydrology of the river network are known (and thus lengths, areas and discharges), the above equation links DNA concentrations to the unknown parameters $\tau$ and $\mathbf{p}=\left( p_1, \dots, p_N\right)$ (where $N$ is the total number of reaches). While the former is linked to the behaviour of DNA in stream water (and could in principle be measured, or at least its value be constrained), the estimation of the latter is the actual goal of the eDITH model. Contrasting observed and modelled DNA concentrations thus enables the estimation of maps of $\mathbf{p}$ across all $N$ reaches constituting the river network, and hence of relative taxon density, given the initial assumption.
 
-It is often convenient (both from a modelling and interpretation viewpoint) to express the eDNA production rate $p_i$ as a function of environmental covariates, possibly related to the spatial patterns of the investigated taxon:
+It is often convenient (both from a modelling and interpretation viewpoint) to express the DNA production rate $p_i$ as a function of environmental covariates, possibly related to the spatial patterns of the investigated taxon:
 
 \begin{equation}
 p_i = p_0 \exp\left( \boldsymbol\beta^T \mathbf{X}(i) \right)
 \end{equation}
 
-where $\mathbf{X}(i)$ is a vector of covariates evaluated at reach $i$; $\boldsymbol\beta$ a vector of covariate effect sizes; and $p_0$ a baseline production rate, i.e., the eDNA production rate at a site where all covariates are at a null level. This reduces the number of unknowns from $N$ (size of $\mathbf{p}$) to the number of selected covariates (length of $\boldsymbol\beta$) plus one ($p_0$).
+where $\mathbf{X}(i)$ is a vector of covariates evaluated at reach $i$; $\boldsymbol\beta$ a vector of covariate effect sizes; and $p_0$ a baseline production rate, i.e., the DNA production rate at a site where all covariates are at a null level. This reduces the number of unknowns from $N$ (size of $\mathbf{p}$) to the number of selected covariates (length of $\boldsymbol\beta$) plus one ($p_0$).
 
-If the eDNA data are in the form of read counts, the above equations remain applicable. Indeed, $C_j$ would play the role of the expected read number at site $j$ (proportional to the underlying eDNA concentration, as per the initial hypothesis). Consequently, $\mathbf{p}$ would in this case represent the eDNA production rates multiplied by such constant of proportionality.
+If the eDNA data are in the form of read counts, the above equations remain applicable. Indeed, $C_j$ would play the role of the expected read number at site $j$ (proportional to the underlying DNA concentration, as per the initial hypothesis). Consequently, $\mathbf{p}$ would in this case represent the DNA production rates multiplied by such constant of proportionality.
 
 ## Estimating detection probability
 
-Once model parameters are estimated (either via a Bayesian method or likelihood maximization), it is possible to transform eDNA production rates $\mathbf{p}$ into corresponding detection probabilities. This is done by exploiting the assumption on the probability distribution used to model measurement errors (and hence formulate the likelihood, see [Likelihood function and model parameters](#likelihood-function-and-model-parameters)).
+Once model parameters are estimated (either via a Bayesian method or likelihood maximization), it is possible to transform DNA production rates $\mathbf{p}$ into corresponding detection probabilities. This is done by exploiting the assumption on the probability distribution used to model measurement errors (and hence formulate the likelihood, see [Likelihood function and model parameters](#likelihood-function-and-model-parameters)).
 
 In particular, this is done by calculating, for each reach $j$, the expected eDNA value $\widetilde{C_j}$ (concentration or read count) if that reach were detached from the river network (that is, in the absence of upstream inputs, with the water discharge in the reach being equal to the locally produced discharge^[Calculated as the actual discharge $Q_j$ minus the sum of discharges of the upstream reaches that are directly connected to $j$]). This is then transformed into a detection probability value, calculated as the probability of observing a non-null eDNA value under the assumed error probability distribution and the expected value $\widetilde{C_j}$.
 
@@ -128,7 +131,7 @@ The so-obtained detection probability maps can be further transformed into prese
 
 eDNA data must be provided in the `data` field of `run_eDITH_BT` and `run_eDITH_optim` as a data frame with components `values` (eDNA values measured for a given taxon and a given time point) and `ID` (identifiers of the network nodes (i.e., reaches) at the AG level^[Please refer to the documentation of `OCNet` for an overview of the aggregation levels of a `river` object.] where the sampling sites are located). To identify the latter, function `locate_site` from `rivnet` can be used. 
 
-The river network must be provided as a `river` object, obtained via the `rivnet` package. It is fundamental that the river be aggregated into reaches (via `aggregate_river`) and that it contains hydrological data, such that discharges and water velocities can be used as input in the eDITH model. This can be obtained via the `hydro_river` function of `rivnet`. In its simplest setting, a single value of discharge (or depth) and width are required in order to extrapolate hydraulic variables across the whole network.
+The river network must be provided as a `river` object, obtained via the `rivnet` package. It is fundamental that the river be aggregated into reaches (via `aggregate_river`) and that it contains hydrological data, such that discharges and water velocities can be used as input in the eDITH model. This can be obtained via the `hydro_river` function of `rivnet`. In its simplest setting, a single value of discharge (or depth) and width, not necessarily at the same reach, are required in order to extrapolate hydraulic variables across the whole network. The exact method with which hydrological variables are extrapolated to the river network depends on the number and type of data provided; please refer to the documentation of `hydro_river` for further details.
 
 Optionally, covariates can be passed to `run_eDITH_BT` and `run_eDITH_optim` as a data frame. Function `covariate_river` of `rivnet` allows computing covariate values from raster maps and a `river` object. If covariates are not provided, asymmetric eigenvector maps (AEMs) are calculated on the river network and used as covariates. AEMs [@blanchet2008] are mutually orthogonal spatial variables obtained by a spatial filtering technique that considers space in an asymmetric way, and are thus suitable to model species distributions in river networks. It is of course possible to combine user-provided covariates and AEMs, as detailed in the flowchart below:
 
@@ -142,7 +145,7 @@ knitr::include_graphics("flowchart_cov.png")
 
 By default, `eDITH` implements four probability distributions to model errors between observed and modelled data: 
 
-* the normal (`ll.type = "norm"`) and log-normal (`ll.type = "lnorm"`) distributions are suitable to model *eDNA concentration* data. 
+* the normal (`ll.type = "norm"`) and log-normal (`ll.type = "lnorm"`) distributions are suitable to model *DNA concentration* data. 
 * the geometric (`ll.type = "geom"`) and negative binomial (`ll.type = "nbinom"`) distributions are suitable for *read count* data. 
 
 **Note that the user is expected to set option `ll.type` according to the nature of the `data` provided in `run_eDITH_BT` or `run_eDITH_optim`.** 
@@ -152,7 +155,7 @@ Moreover, the optional argument `no.det = TRUE` can be used to produce a zero-in
 Default model parameters are as follows:
 
 * `tau` represents decay time $\tau$ in hours.
-* `log_p0` is the logarithm in base 10 of the baseline production rate $p_0$. The units of $p_0$ are equal to the units of the inputted `data$values` multiplied by a length unit and divided by a time unit. For instance, if `data$values` contains eDNA concentration data in mol m^-3^ and the river object contains discharge (`river$AG$Q`) in m^3^s^-1^ and areas^[This depends on the resolution of the DEM used to obtain the river network in `rivnet::extract_river`] in m^2^, $p_0$ is expressed in mol m^-2^ s^-1^ (i.e. amount of eDNA shed per unit area and unit time). In the case of read count data, the unit for $p_0$ might look weird; this is because, in this case, $p_0$ embeds a constant that transforms expected eDNA concentration predicted by the model into expected read number.
+* `log_p0` is the logarithm in base 10 of the baseline production rate $p_0$. The units of $p_0$ are equal to the units of the inputted `data$values` multiplied by a length unit and divided by a time unit. For instance, if `data$values` contains DNA concentration data in mol m^-3^ and the river object contains discharge (`river$AG$Q`) in m^3^s^-1^ and areas^[This depends on the resolution of the DEM used to obtain the river network in `rivnet::extract_river`.] in m^2^, $p_0$ is expressed in mol m^-2^ s^-1^ (i.e. amount of DNA shed per unit area and unit time). In the case of read count data, the unit for $p_0$ might look weird; this is because, in this case, $p_0$ embeds a constant that transforms expected DNA concentration predicted by the model into expected read number.
 * `beta_X` is the effect size of covariate `X`, where `X` is replaced by the object names in the `covariates` data frame (if provided), and/or by e.g. `AEM1` when AEM eigenfunctions are used. In this case, the number indicates the corresponding eigenfunction.
 
 Additional parameters can be added depending on the likelihood definition:
@@ -167,7 +170,7 @@ Additional parameters can be added depending on the likelihood definition:
 ## Generating a `river` object
 
 To illustrate the functioning of `eDITH`, let's run an example in the river Wigger (Switzerland), whose `river` object can be called via `data(wigger)`.
-Such object can be built via the `rivnet` package as follows. Please refer to `rivnet` documentation for details on its functions.
+Such an object can be built via the `rivnet` package as follows. Please refer to `rivnet` documentation for details on its functions.
 
 ```{r, eval=FALSE}
 # Extract river from DEM
@@ -196,14 +199,14 @@ river <- rivnet::covariate_river(r1, river)
 
 ## Preparing and displaying eDNA data
 
-An example of eDNA concentration data for a given target taxon can be called as:
+An example of DNA concentration data for a given target taxon can be called as:
 ```{r, eval=FALSE}
 data(dataC)
 ```
 `dataC` contains the following objects:
 
 * `ID`: identifiers of river network nodes at the AG levels where eDNA has been sampled (these can be retrieved via `rivnet::locate_site` based on the site coordinates).
-* `values`: corresponding values of eDNA concentration measured (in mol m^-3^)
+* `values`: corresponding values of DNA concentration measured (in mol m^-3^)
 
 `dataC` contains eDNA values for 24 sampling sites, each of which has been sampled three times. In such case, the three different eDNA values are inserted in `dataC` as independent rows:
 
@@ -215,7 +218,7 @@ dataC[which(dataC$ID==2),]
 #> 49  2 8.176798e-13
 ```
 
-We can use function `rivnet::points_colorscale` to display the mean eDNA concentration values across the sampling sites:
+We can use function `rivnet::points_colorscale` to display the mean DNA concentration values across the sampling sites:
 
 ```{r, eval=FALSE}
 sites <- unique(dataC$ID)
@@ -228,7 +231,7 @@ for (ind in 1:length(sites)){
 plot(river)
 rivnet::points_colorscale(river$AG$X[unique(dataC$ID)], river$AG$Y[unique(dataC$ID)],
                           values)
-title("Mean eDNA concentration [mol m-3]")
+title("Mean observed DNA concentration [mol m-3]")
 
 ```
 
@@ -260,7 +263,7 @@ out.bt.cov <- run_eDITH_BT(dataC, river, covariates)
 
 ```
 
-The default option for `ll.type` is `norm`, which is suitable for eDNA concentration data.
+The default option for `ll.type` is `norm`, which is suitable for DNA concentration data.
 
 Alternatively, we can run eDITH via AEM covariates. By default, the first 10\% AEM eigenfunctions are used as covariates.
 
@@ -285,7 +288,8 @@ For illustrative purposes, we here use a reduced number of AEM eigenfunctions (1
 
 We can qualitatively check the goodness of fit of the model:
 ```{r, eval=FALSE}
-plot(out.opt.aem$C[dataC$ID], dataC$values, xlim=c(0,8e-12), ylim=c(0, 8e-12),
+plot(out.opt.aem$C[dataC$ID], dataC$values, 
+     xlim=c(0,8e-12), ylim=c(0, 8e-12), asp=1,
      xlab = "Modelled concentration [mol m-3]", 
      ylab = "Observed concentration [mol m-3]")
 abline(0,1)
@@ -302,7 +306,7 @@ plot(river, out.opt.aem$C, colLevels=c(0, max(values), 1000), addLegend = FALSE,
      colPalette = hcl.colors(1000, "Reds 3", rev=T))
 rivnet::points_colorscale(river$AG$X[unique(dataC$ID)], river$AG$Y[unique(dataC$ID)],
                           values)
-title("eDNA concentration [mol m-3]")
+title("DNA concentration [mol m-3]")
 ```
 
 ```{r mapC, echo=FALSE, out.width = '80%'}
@@ -310,10 +314,10 @@ knitr::include_graphics("mapC.png")
 
 ```
 
-Finally, we can have a look at the predicted map of relative taxon density (i.e., eDNA production rate $\mathbf{p}$)
+Finally, we can have a look at the predicted map of relative taxon density (i.e., DNA production rate $\mathbf{p}$)
 ```{r, eval=FALSE}
 plot(river, out.opt.aem$p)
-title('eDNA production rate [mol m-2 s-1]')
+title('DNA production rate [mol m-2 s-1]')
 ```
 
 ```{r mapp, echo=FALSE, out.width = '80%'}
