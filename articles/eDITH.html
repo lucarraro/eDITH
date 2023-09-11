@@ -86,10 +86,11 @@ density.</p>
 <li>It provides estimations of detection probability of any number of
 taxa across a whole catchment based on spatially replicated eDNA data of
 these taxa.</li>
-<li>It can handle both eDNA concentration data (e.g., from qPCR) and
+<li>It can handle both DNA concentration data (e.g., from qPCR) and
 metabarcoding (read counts) data of any taxonomic group, and can be used
-to predict maps of taxon (say, species, genus or family level), OTU or
-ASV density.</li>
+to predict maps of density of taxa (say, at species, genus or family
+level), OTUs (Operational Taxonomic Units) or ASVs (Amplicon Sequence
+Variants).</li>
 <li>Model fit can be performed via Bayesian techniques or optimization
 algorithms.</li>
 <li>Covariates can be specified by the user and/or selected by means of
@@ -136,20 +137,20 @@ metabarcoding data) for a certain area upstream of the sampling
 location. By exploiting information from multiple sampling sites
 distributed in space, and embedding a model for transport and concurrent
 decay of DNA, the eDITH model is able to disentangle the various sources
-of eDNA shedding (and hence, of the target taxon’s abundance). As a
+of DNA shedding (and hence, of the target taxon’s abundance). As a
 result, eDITH complements pointwise eDNA measurements by projecting
 taxon distributions (and thus biodiversity information) into
 space-filling catchment maps.</p>
 <div class="section level4">
-<h4 id="shedding-and-decay-rates">Shedding and decay rates<a class="anchor" aria-label="anchor" href="#shedding-and-decay-rates"></a>
+<h4 id="dna-production-and-decay-rates">DNA production and decay rates<a class="anchor" aria-label="anchor" href="#dna-production-and-decay-rates"></a>
 </h4>
-<p>The eDNA production (i.e., shedding) rate of a taxon in stream water
+<p>The DNA production (i.e., shedding) rate of a taxon in stream water
 is assumed to be proportional to its density<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content='&lt;p&gt;In particular, it is assumed that taxon density is
 equivalent to both biomass and abundance. Although shedding rates have
 been shown to scale allometrically with organismal mass &lt;span class="citation"&gt;(Yates et al. 2020)&lt;/span&gt;, the distinction between
 biomass and abundance is, for modelling purposes, irrelevant. In
 essence, the patterns modelled by eDITH are those of a quantity that is
-proportional to the eDNA production rate–be it biomass, abundance or
+proportional to the DNA production rate–be it biomass, abundance or
 allometrically scaled mass.&lt;/p&gt;'><sup>1</sup></a> <span class="citation">(Lodge et al. 2012; Apothéloz-Perret-Gentil et al.
 2017)</span>. The validity of this assumption is restricted to the time
 point when eDNA is sampled. Thus, it is irrelevant if a taxon varies in
@@ -160,10 +161,10 @@ assumed to be constant in time (not in space!) across the duration of a
 sampling campaign (for instance, if multiple days are required to cover
 all sampling sites, these days would be assumed to constitute a unique
 time point).</p>
-<p>The decay of eDNA can be expressed by first order kinetics (i.e., the
-rate of change of DNA concentration decreases linearly with time).
-Similarly to the production rate, it is assumed that a single value of
-decay time is representative for a given taxon at a given time
+<p>The decay of DNA is assumed to be expressed by first order kinetics
+(i.e., the rate of change of DNA concentration decreases linearly with
+time). Similarly to the production rate, it is assumed that a single
+value of decay time is representative for a given taxon at a given time
 point.</p>
 </div>
 <div class="section level4">
@@ -172,11 +173,13 @@ point.</p>
 <p>The spatial extent of the eDNA sampling must adequately cover the
 entire river network, in order to allow the model to make robust
 predictions. As a rule of thumb, there should be one sampling site each
-10–20 km<sup>2</sup> of drained area. Moreover, all main tributaries of
-a river network should be sampled. Ideally, sampling sites should be
-located just upstream of a confluence, so that the independent signals
-from the joining tributaries can be gauged. See <span class="citation">(Carraro, Stauffer, and Altermatt 2021)</span> for
-further information on optimal eDNA sampling strategies.</p>
+10–20 km<sup>2</sup> of drained area.</p>
+<p>Moreover, all main tributaries of a river network should be sampled.
+Ideally, sampling sites should be located just upstream of a confluence,
+so that the independent signals from the joining tributaries can be
+gauged. See <span class="citation">(Carraro, Stauffer, and Altermatt
+2021)</span> for further information on optimal eDNA sampling
+strategies.</p>
 <p>The mean distance (along the river network) between eDNA samples
 should not be too large, otherwise the eDNA found at an upstream site
 would be totally depleted before reaching the next downstream site. In
@@ -209,7 +212,7 @@ laboratory procedures (e.g. DNA extraction, Polymerase Chain Reaction
 concentrations across samples.</p>
 <p>If eDITH is used to model metabarcoding data, the expected read count
 at a given site for a given taxon is assumed to be proportional to the
-underlying eDNA concentration.</p>
+underlying DNA concentration.</p>
 <p>Replicated eDNA measures at the same site and time point are treated
 as independent measures. No distinctions is made on whether these are
 physical (i.e., different water samples) or laboratory (different PCR
@@ -219,17 +222,22 @@ runs) replicates.</p>
 <h4 id="what-taxa-can-be-modelled">What taxa can be modelled?<a class="anchor" aria-label="anchor" href="#what-taxa-can-be-modelled"></a>
 </h4>
 <p>In principle, the eDITH model is suitable for aquatic macroorganisms
-that shed their eDNA into stream water. However, the model can be
+that shed their DNA into stream water. However, the model can be
 extended for microorganisms that are sampled in their entirety (e.g.,
 free floating bacteria), in which case their upstream sources can be
 considered as biofilm colonies, and the decay time does not refer to DNA
 molecules but rather to the bacteria lifetime.</p>
-<p>Similarly, the eDITH model can be applied also to estimate the
-spatial distribution of terrestrial taxa, provided that the assumption
-of proportionality between eDNA production rate and taxon density holds.
-In this case, the spatial unit on which predictions are performed is the
-subcatchment, i.e., the portion of land that directly drains towards the
-associated reach.</p>
+<p>The eDITH model does not make a distinction on whether the eDNA data
+is referred to an assigned taxon (say, at a species, genus or family
+level) or an unassigned cluster such as OTUs or ASVs. What matters is
+that the assumptions on production and decay rates (see <a href="#dna-production-and-decay-rates">DNA production and decay
+rates</a>) must hold.</p>
+<p>In principle, it is also possible to estimate the spatial
+distribution of terrestrial, rather than aquatic, taxa, provided that
+the assumption of proportionality between DNA production rate and taxon
+density holds. In this case, the spatial unit on which predictions are
+performed is the subcatchment, i.e., the portion of land that directly
+drains towards the associated reach.</p>
 </div>
 <div class="section level4">
 <h4 id="river-network-model">River network model<a class="anchor" aria-label="anchor" href="#river-network-model"></a>
@@ -283,21 +291,23 @@ C_j = \frac{1}{Q_j}\sum_{i \in \gamma(j)} p_i A_{S,i}
 <ul>
 <li>
 <span class="math inline">\(C_j\)</span> is the DNA concentration at
-a sampling site <span class="math inline">\(j\)</span>;</li>
+a sampling site <span class="math inline">\(j\)</span> (strictly
+speaking, <span class="math inline">\(j\)</span> is the reach where a
+sampling site is located);</li>
 <li>
 <span class="math inline">\(Q_j\)</span> is the water discharge in
 <span class="math inline">\(j\)</span>;</li>
 <li>
 <span class="math inline">\(\gamma(j)\)</span> identifies the set of
-nodes (i.e., reaches) upstream of <span class="math inline">\(j\)</span>;</li>
+reaches upstream of <span class="math inline">\(j\)</span>;</li>
 <li>
-<span class="math inline">\(p_i\)</span> is the eDNA production rate
-at an upstream node <span class="math inline">\(i\)</span>;</li>
+<span class="math inline">\(p_i\)</span> is the DNA production rate
+at an upstream reach <span class="math inline">\(i\)</span>;</li>
 <li>
 <span class="math inline">\(A_{S,i}\)</span> is the source area in
 <span class="math inline">\(i\)</span> (i.e., extent of the node;
-considering a river reach, this could e.g. be equal by the product of
-its length and width);</li>
+considering a river reach and an aquatic taxon, this could e.g. be equal
+by the product of its length and width);</li>
 <li>
 <span class="math inline">\(L_{ij}\)</span> is the length of the
 along-stream path joining <span class="math inline">\(i\)</span> to
@@ -307,20 +317,20 @@ along-stream path joining <span class="math inline">\(i\)</span> to
 average water velocity along <span class="math inline">\(L_{ij}\)</span>;</li>
 <li>
 <span class="math inline">\(\tau\)</span> is a characteristic decay
-time for eDNA in stream water.</li>
+time for DNA in stream water.</li>
 </ul>
 <p>Assuming that the morphology and hydrology of the river network are
 known (and thus lengths, areas and discharges), the above equation links
-eDNA concentrations to the unknown parameters <span class="math inline">\(\tau\)</span> and <span class="math inline">\(\mathbf{p}=\left( p_1, \dots, p_N\right)\)</span>
+DNA concentrations to the unknown parameters <span class="math inline">\(\tau\)</span> and <span class="math inline">\(\mathbf{p}=\left( p_1, \dots, p_N\right)\)</span>
 (where <span class="math inline">\(N\)</span> is the total number of
 reaches). While the former is linked to the behaviour of DNA in stream
 water (and could in principle be measured, or at least its value be
 constrained), the estimation of the latter is the actual goal of the
-eDITH model. Contrasting observed and modelled eDNA concentrations thus
-enables the estimation of maps of <span class="math inline">\(\mathbf{p}\)</span> across a catchment, and hence
-of relative taxon density, given the initial assumption.</p>
+eDITH model. Contrasting observed and modelled DNA concentrations thus
+enables the estimation of maps of <span class="math inline">\(\mathbf{p}\)</span> across all <span class="math inline">\(N\)</span> reaches constituting the river network,
+and hence of relative taxon density, given the initial assumption.</p>
 <p>It is often convenient (both from a modelling and interpretation
-viewpoint) to express the eDNA production rate <span class="math inline">\(p_i\)</span> as a function of environmental
+viewpoint) to express the DNA production rate <span class="math inline">\(p_i\)</span> as a function of environmental
 covariates, possibly related to the spatial patterns of the investigated
 taxon:</p>
 <p><span class="math display">\[\begin{equation}
@@ -330,22 +340,22 @@ p_i = p_0 \exp\left( \boldsymbol\beta^T \mathbf{X}(i) \right)
 of covariates evaluated at reach <span class="math inline">\(i\)</span>;
 <span class="math inline">\(\boldsymbol\beta\)</span> a vector of
 covariate effect sizes; and <span class="math inline">\(p_0\)</span> a
-baseline production rate, i.e., the eDNA production rate at a site where
+baseline production rate, i.e., the DNA production rate at a site where
 all covariates are at a null level. This reduces the number of unknowns
 from <span class="math inline">\(N\)</span> (size of <span class="math inline">\(\mathbf{p}\)</span>) to the number of selected
 covariates (length of <span class="math inline">\(\boldsymbol\beta\)</span>) plus one (<span class="math inline">\(p_0\)</span>).</p>
 <p>If the eDNA data are in the form of read counts, the above equations
 remain applicable. Indeed, <span class="math inline">\(C_j\)</span>
-would play the role of the expected read number at site <span class="math inline">\(j\)</span> (proportional to the underlying eDNA
+would play the role of the expected read number at site <span class="math inline">\(j\)</span> (proportional to the underlying DNA
 concentration, as per the initial hypothesis). Consequently, <span class="math inline">\(\mathbf{p}\)</span> would in this case represent
-the eDNA production rates multiplied by such constant of
+the DNA production rates multiplied by such constant of
 proportionality.</p>
 </div>
 <div class="section level3">
 <h3 id="estimating-detection-probability">Estimating detection probability<a class="anchor" aria-label="anchor" href="#estimating-detection-probability"></a>
 </h3>
 <p>Once model parameters are estimated (either via a Bayesian method or
-likelihood maximization), it is possible to transform eDNA production
+likelihood maximization), it is possible to transform DNA production
 rates <span class="math inline">\(\mathbf{p}\)</span> into corresponding
 detection probabilities. This is done by exploiting the assumption on
 the probability distribution used to model measurement errors (and hence
@@ -383,9 +393,12 @@ river be aggregated into reaches (via <code>aggregate_river</code>) and
 that it contains hydrological data, such that discharges and water
 velocities can be used as input in the eDITH model. This can be obtained
 via the <code>hydro_river</code> function of <code>rivnet</code>. In its
-simplest setting, a single value of discharge (or depth) and width are
-required in order to extrapolate hydraulic variables across the whole
-network.</p>
+simplest setting, a single value of discharge (or depth) and width, not
+necessarily at the same reach, are required in order to extrapolate
+hydraulic variables across the whole network. The exact method with
+which hydrological variables are extrapolated to the river network
+depends on the number and type of data provided; please refer to the
+documentation of <code>hydro_river</code> for further details.</p>
 <p>Optionally, covariates can be passed to <code>run_eDITH_BT</code> and
 <code>run_eDITH_optim</code> as a data frame. Function
 <code>covariate_river</code> of <code>rivnet</code> allows computing
@@ -411,7 +424,7 @@ distributions to model errors between observed and modelled data:</p>
 <ul>
 <li>the normal (<code>ll.type = "norm"</code>) and log-normal
 (<code>ll.type = "lnorm"</code>) distributions are suitable to model
-<em>eDNA concentration</em> data.</li>
+<em>DNA concentration</em> data.</li>
 <li>the geometric (<code>ll.type = "geom"</code>) and negative binomial
 (<code>ll.type = "nbinom"</code>) distributions are suitable for
 <em>read count</em> data.</li>
@@ -434,14 +447,14 @@ production rate <span class="math inline">\(p_0\)</span>. The units of
 <span class="math inline">\(p_0\)</span> are equal to the units of the
 inputted <code>data$values</code> multiplied by a length unit and
 divided by a time unit. For instance, if <code>data$values</code>
-contains eDNA concentration data in mol m<sup>-3</sup> and the river
+contains DNA concentration data in mol m<sup>-3</sup> and the river
 object contains discharge (<code>river$AG$Q</code>) in
 m<sup>3</sup>s<sup>-1</sup> and areas<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content='&lt;p&gt;This depends on the resolution of the DEM used to obtain
-the river network in &lt;code&gt;&lt;a href="https://lucarraro.github.io/rivnet/reference/extract_river.html" class="external-link"&gt;rivnet::extract_river&lt;/a&gt;&lt;/code&gt;&lt;/p&gt;'><sup>5</sup></a> in m<sup>2</sup>, <span class="math inline">\(p_0\)</span> is expressed in mol m<sup>-2</sup>
-s<sup>-1</sup> (i.e. amount of eDNA shed per unit area and unit time).
-In the case of read count data, the unit for <span class="math inline">\(p_0\)</span> might look weird; this is because, in
+the river network in &lt;code&gt;&lt;a href="https://lucarraro.github.io/rivnet/reference/extract_river.html" class="external-link"&gt;rivnet::extract_river&lt;/a&gt;&lt;/code&gt;.&lt;/p&gt;'><sup>5</sup></a> in m<sup>2</sup>, <span class="math inline">\(p_0\)</span> is expressed in mol m<sup>-2</sup>
+s<sup>-1</sup> (i.e. amount of DNA shed per unit area and unit time). In
+the case of read count data, the unit for <span class="math inline">\(p_0\)</span> might look weird; this is because, in
 this case, <span class="math inline">\(p_0\)</span> embeds a constant
-that transforms expected eDNA concentration predicted by the model into
+that transforms expected DNA concentration predicted by the model into
 expected read number.</li>
 <li>
 <code>beta_X</code> is the effect size of covariate <code>X</code>,
@@ -483,8 +496,8 @@ the non-detection probability, all else being equal. See <span class="citation">
 </h3>
 <p>To illustrate the functioning of <code>eDITH</code>, let’s run an
 example in the river Wigger (Switzerland), whose <code>river</code>
-object can be called via <code>data(wigger)</code>. Such object can be
-built via the <code>rivnet</code> package as follows. Please refer to
+object can be called via <code>data(wigger)</code>. Such an object can
+be built via the <code>rivnet</code> package as follows. Please refer to
 <code>rivnet</code> documentation for details on its functions.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Extract river from DEM</span></span>
@@ -512,7 +525,7 @@ built via the <code>rivnet</code> package as follows. Please refer to
 <div class="section level3">
 <h3 id="preparing-and-displaying-edna-data">Preparing and displaying eDNA data<a class="anchor" aria-label="anchor" href="#preparing-and-displaying-edna-data"></a>
 </h3>
-<p>An example of eDNA concentration data for a given target taxon can be
+<p>An example of DNA concentration data for a given target taxon can be
 called as:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">dataC</span><span class="op">)</span></span></code></pre></div>
@@ -523,7 +536,7 @@ called as:</p>
 where eDNA has been sampled (these can be retrieved via
 <code><a href="https://lucarraro.github.io/rivnet/reference/locate_site.html" class="external-link">rivnet::locate_site</a></code> based on the site coordinates).</li>
 <li>
-<code>values</code>: corresponding values of eDNA concentration
+<code>values</code>: corresponding values of DNA concentration
 measured (in mol m<sup>-3</sup>)</li>
 </ul>
 <p><code>dataC</code> contains eDNA values for 24 sampling sites, each
@@ -535,8 +548,8 @@ eDNA values are inserted in <code>dataC</code> as independent rows:</p>
 <span><span class="co">#&gt; 1   2 0.000000e+00</span></span>
 <span><span class="co">#&gt; 25  2 1.037331e-12</span></span>
 <span><span class="co">#&gt; 49  2 8.176798e-13</span></span></code></pre></div>
-<p>We can use function <code>rivnet::points_colorscale</code> to display
-the mean eDNA concentration values across the sampling sites:</p>
+<p>We can use function <code><a href="https://lucarraro.github.io/rivnet/reference/points_colorscale.html" class="external-link">rivnet::points_colorscale</a></code> to display
+the mean DNA concentration values across the sampling sites:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sites</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">dataC</span><span class="op">$</span><span class="va">ID</span><span class="op">)</span></span>
 <span><span class="va">values</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">sites</span><span class="op">)</span><span class="op">)</span></span>
@@ -546,9 +559,9 @@ the mean eDNA concentration values across the sampling sites:</p>
 <span><span class="op">}</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">river</span><span class="op">)</span></span>
-<span><span class="fu">rivnet</span><span class="fu">::</span><span class="fu">points_colorscale</span><span class="op">(</span><span class="va">river</span><span class="op">$</span><span class="va">AG</span><span class="op">$</span><span class="va">X</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">dataC</span><span class="op">$</span><span class="va">ID</span><span class="op">)</span><span class="op">]</span>, <span class="va">river</span><span class="op">$</span><span class="va">AG</span><span class="op">$</span><span class="va">Y</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">dataC</span><span class="op">$</span><span class="va">ID</span><span class="op">)</span><span class="op">]</span>,</span>
+<span><span class="fu">rivnet</span><span class="fu">::</span><span class="fu"><a href="https://lucarraro.github.io/rivnet/reference/points_colorscale.html" class="external-link">points_colorscale</a></span><span class="op">(</span><span class="va">river</span><span class="op">$</span><span class="va">AG</span><span class="op">$</span><span class="va">X</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">dataC</span><span class="op">$</span><span class="va">ID</span><span class="op">)</span><span class="op">]</span>, <span class="va">river</span><span class="op">$</span><span class="va">AG</span><span class="op">$</span><span class="va">Y</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">dataC</span><span class="op">$</span><span class="va">ID</span><span class="op">)</span><span class="op">]</span>,</span>
 <span>                          <span class="va">values</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="st">"Mean eDNA concentration [mol m-3]"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="st">"Mean observed DNA concentration [mol m-3]"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="map2.png" width="80%"></p>
 </div>
 <div class="section level3">
@@ -575,7 +588,7 @@ run eDITH with the above-specified covariates:</p>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">out.bt.cov</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_eDITH_BT.html">run_eDITH_BT</a></span><span class="op">(</span><span class="va">dataC</span>, <span class="va">river</span>, <span class="va">covariates</span><span class="op">)</span></span></code></pre></div>
 <p>The default option for <code>ll.type</code> is <code>norm</code>,
-which is suitable for eDNA concentration data.</p>
+which is suitable for DNA concentration data.</p>
 <p>Alternatively, we can run eDITH via AEM covariates. By default, the
 first 10% AEM eigenfunctions are used as covariates.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
@@ -601,7 +614,8 @@ to increase the number of optimization attempts (as in the default
 settings) to ensure convergence.</p>
 <p>We can qualitatively check the goodness of fit of the model:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">out.opt.aem</span><span class="op">$</span><span class="va">C</span><span class="op">[</span><span class="va">dataC</span><span class="op">$</span><span class="va">ID</span><span class="op">]</span>, <span class="va">dataC</span><span class="op">$</span><span class="va">values</span>, xlim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">8e-12</span><span class="op">)</span>, ylim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">8e-12</span><span class="op">)</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">out.opt.aem</span><span class="op">$</span><span class="va">C</span><span class="op">[</span><span class="va">dataC</span><span class="op">$</span><span class="va">ID</span><span class="op">]</span>, <span class="va">dataC</span><span class="op">$</span><span class="va">values</span>, </span>
+<span>     xlim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">8e-12</span><span class="op">)</span>, ylim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">8e-12</span><span class="op">)</span>, asp<span class="op">=</span><span class="fl">1</span>,</span>
 <span>     xlab <span class="op">=</span> <span class="st">"Modelled concentration [mol m-3]"</span>, </span>
 <span>     ylab <span class="op">=</span> <span class="st">"Observed concentration [mol m-3]"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span></span></code></pre></div>
@@ -611,15 +625,15 @@ using <code>rivnet</code>’s <code>plot</code> method:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">river</span>, <span class="va">out.opt.aem</span><span class="op">$</span><span class="va">C</span>, colLevels<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">values</span><span class="op">)</span>, <span class="fl">1000</span><span class="op">)</span>, addLegend <span class="op">=</span> <span class="cn">FALSE</span>, </span>
 <span>     colPalette <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/palettes.html" class="external-link">hcl.colors</a></span><span class="op">(</span><span class="fl">1000</span>, <span class="st">"Reds 3"</span>, rev<span class="op">=</span><span class="cn">T</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu">rivnet</span><span class="fu">::</span><span class="fu">points_colorscale</span><span class="op">(</span><span class="va">river</span><span class="op">$</span><span class="va">AG</span><span class="op">$</span><span class="va">X</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">dataC</span><span class="op">$</span><span class="va">ID</span><span class="op">)</span><span class="op">]</span>, <span class="va">river</span><span class="op">$</span><span class="va">AG</span><span class="op">$</span><span class="va">Y</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">dataC</span><span class="op">$</span><span class="va">ID</span><span class="op">)</span><span class="op">]</span>,</span>
+<span><span class="fu">rivnet</span><span class="fu">::</span><span class="fu"><a href="https://lucarraro.github.io/rivnet/reference/points_colorscale.html" class="external-link">points_colorscale</a></span><span class="op">(</span><span class="va">river</span><span class="op">$</span><span class="va">AG</span><span class="op">$</span><span class="va">X</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">dataC</span><span class="op">$</span><span class="va">ID</span><span class="op">)</span><span class="op">]</span>, <span class="va">river</span><span class="op">$</span><span class="va">AG</span><span class="op">$</span><span class="va">Y</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">dataC</span><span class="op">$</span><span class="va">ID</span><span class="op">)</span><span class="op">]</span>,</span>
 <span>                          <span class="va">values</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="st">"eDNA concentration [mol m-3]"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="st">"DNA concentration [mol m-3]"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="mapC.png" width="80%"></p>
 <p>Finally, we can have a look at the predicted map of relative taxon
-density (i.e., eDNA production rate <span class="math inline">\(\mathbf{p}\)</span>)</p>
+density (i.e., DNA production rate <span class="math inline">\(\mathbf{p}\)</span>)</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">river</span>, <span class="va">out.opt.aem</span><span class="op">$</span><span class="va">p</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="st">'eDNA production rate [mol m-2 s-1]'</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="st">'DNA production rate [mol m-2 s-1]'</span><span class="op">)</span></span></code></pre></div>
 <p><img src="mapp.png" width="80%"></p>
 <p>And the corresponding detection probability <span class="math inline">\(\mathbf{p_D}\)</span>:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
