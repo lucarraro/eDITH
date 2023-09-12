@@ -5,6 +5,7 @@ Version: 0.1.0
 Authors@R: 
     c(person("Luca", "Carraro", 
 	email = "luca.carraro@hotmail.it", role = c("cre", "aut")),
+		person("Florian", "Altermatt", role = c("aut")),
     person("University of Zurich", role = c("cph", "fnd")))
 Description: Runs the eDITH (eDNA Integrating Transport and Hydrology) model,
   which implements a mass balance of eDNA transport at a river network scale 
