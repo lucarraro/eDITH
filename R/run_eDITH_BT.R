@@ -318,7 +318,7 @@ eval.pC.pD <- function(param, river, ss, covariates, source.area,
   if (!is.null(ll.type)){
     local_expected_C <- p*source.area*exp(-river$AG$leng/river$AG$velocity/tau)/q
     if (ll.type=="geom"){
-      probDetection <- pgeom(0, prob = 1/(1+local_expected_C))
+      probDetection <- 1 - pgeom(0, prob = 1/(1+local_expected_C))
     } else if (ll.type=="norm") {
       probDetection <- 1 - pnorm(0, mean = local_expected_C, sd = param["sigma"])
     } else if (ll.type=="lnorm"){
