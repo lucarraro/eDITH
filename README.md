@@ -2,6 +2,8 @@
 
 An R package to model transport of environmental DNA in river networks
 
+[![CRAN](http://www.r-pkg.org/badges/version/eDITH)](http://CRAN.R-project.org/package=eDITH)
+
 ## Overview
 
 `eDITH` (**eD**NA **I**ntegrating **T**ransport and **H**ydrology) allows interpreting environmental DNA data collected from river networks. It implements the eDITH model, which couples a geomorphological and hydrological characterization of a catchment, eDNA transport and decay dynamics, and a species distribution model, and allows transforming pointwise eDNA
@@ -19,7 +21,13 @@ Features:
 
 ## Installing the package
 
-The development version of `eDITH` can be installed from Github:
+`eDITH` can be installed from CRAN:
+
+```
+install.packages("eDITH")
+```
+
+The development version can be installed from Github:
 
 ```
 devtools::install_github("lucarraro/eDITH")
