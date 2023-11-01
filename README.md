@@ -1,4 +1,4 @@
-<img align="right" width="250" src="man/figures/eDITH_logo.png">
+<img align="right" width="250" src="man/figures/edith_logo.png">
 
 # eDITH
 
