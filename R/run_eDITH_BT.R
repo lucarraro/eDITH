@@ -19,6 +19,12 @@ run_eDITH_BT <-
       stop('If eDNA data are log-normally distributed, non-detections must be accounted for.')
     }
 
+    if (length(river$AG$A)==0) {
+      stop('river is not aggregated. You should run rivnet::aggregate_river on river prior to run_eDITH_BT.')}
+
+    if (length(river$AG$discharge)==0) {
+    stop('Missing hydrological data. You should run rivnet::hydro_river on river prior to run_eDITH_BT.')}
+
     if (!is.null(likelihood)){ll.type="custom"}
 
     if (is.null(n.AEM)){n.AEM <- round(0.1*river$AG$nNodes)}
