@@ -1,3 +1,13 @@
+# eDITH 0.1.2.9000
+
+## Minor changes
+
+- `run_eDITH_BT`, `run_eDITH_optim`: updated error messages when unsuitable input is used.
+
+## Bugs fixed
+
+- `run_eDITH_BT`, `run_eDITH_optim`: bug fixed in attribution of names to AEM covariates.
+
 # eDITH 0.1.2
 
 ## Minor changes
