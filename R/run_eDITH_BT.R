@@ -47,7 +47,7 @@ run_eDITH_BT <-
       if (!is.null(out$moranI)){ select.AEM <- which(out$moranI$pvalue < 0.05)
       } else {select.AEM <- 1:n.AEM}
       cov.AEM <- data.frame(out$vectors[,select.AEM])
-      names(cov.AEM) <- paste0("AEM",1:select.AEM)
+      names(cov.AEM) <- paste0("AEM", select.AEM)
       covariates <- data.frame(c(covariates, cov.AEM))
     }
 
