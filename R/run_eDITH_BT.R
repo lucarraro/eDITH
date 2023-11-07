@@ -19,6 +19,12 @@ run_eDITH_BT <-
       stop('If eDNA data are log-normally distributed, non-detections must be accounted for.')
     }
 
+    if (length(river$AG$A)==0) {
+      stop('river is not aggregated. You should run rivnet::aggregate_river on river prior to run_eDITH_BT.')}
+
+    if (length(river$AG$discharge)==0) {
+    stop('Missing hydrological data. You should run rivnet::hydro_river on river prior to run_eDITH_BT.')}
+
     if (!is.null(likelihood)){ll.type="custom"}
 
     if (is.null(n.AEM)){n.AEM <- round(0.1*river$AG$nNodes)}
@@ -41,7 +47,7 @@ run_eDITH_BT <-
       if (!is.null(out$moranI)){ select.AEM <- which(out$moranI$pvalue < 0.05)
       } else {select.AEM <- 1:n.AEM}
       cov.AEM <- data.frame(out$vectors[,select.AEM])
-      names(cov.AEM) <- paste0("AEM",1:select.AEM)
+      names(cov.AEM) <- paste0("AEM", select.AEM)
       covariates <- data.frame(c(covariates, cov.AEM))
     }
 
