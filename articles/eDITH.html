@@ -8,8 +8,8 @@
 <meta name="description" content="eDITH">
 <title>An introduction to eDITH • eDITH</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.2.2/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="An introduction to eDITH">
 <meta property="og:description" content="eDITH">
@@ -161,7 +161,7 @@ allometrically scaled mass.&lt;/p&gt;'><sup>1</sup></a> <span class="citation">(
 2017)</span>. The validity of this assumption is restricted to the time
 point when eDNA is sampled. Thus, it is irrelevant if a taxon varies in
 its release of DNA across the season, as long as DNA released is
-proportionate to taxon density at the time of sampling). For the same
+proportionate to taxon density at the time of sampling. For the same
 reason, hydrological variables (such as discharge and velocity) are
 assumed to be constant in time (not in space!) across the duration of a
 sampling campaign. For instance, if multiple days are required to
@@ -275,13 +275,13 @@ a lake either degrades or is retained by substrate particles.
 Particle-bound DNA can eventually be resuspended <span class="citation">(Shogren et al. 2017)</span>, but this likely occurs at
 long time scales (say, monthly, yearly or even longer), hence the
 assumption of first-order decay kinetics with a single decay time value
-across the river network (see below) would be violated. Similarly, the
-river networks produced by <code>rivnet</code> do not admit bifurcations
-in the downstream direction (e.g., braided or artificial channels
-creating loops in the river network). Hence, the different braids or
-channels cannot be treated as independent reaches in the eDITH model. In
-such a case, the eDITH model could still be applied by considering a
-single channel as a conceptual equivalent of the multiple real braids or
+across the river network would be violated. Similarly, the river
+networks produced by <code>rivnet</code> do not admit bifurcations in
+the downstream direction (e.g., braided or artificial channels creating
+loops in the river network). Hence, the different braids or channels
+cannot be treated as independent reaches in the eDITH model. In such a
+case, the eDITH model could still be applied by considering a single
+channel as a conceptual equivalent of the multiple real braids or
 channels.</p>
 </div>
 </div>
@@ -314,7 +314,7 @@ at an upstream reach <span class="math inline">\(i\)</span>;</li>
 <span class="math inline">\(A_{S,i}\)</span> is the source area in
 <span class="math inline">\(i\)</span> (i.e., extent of the node;
 considering a river reach and an aquatic taxon, this could e.g. be equal
-by the product of its length and width);</li>
+to the product of its length and width);</li>
 <li>
 <span class="math inline">\(L_{ij}\)</span> is the length of the
 along-stream path joining <span class="math inline">\(i\)</span> to
