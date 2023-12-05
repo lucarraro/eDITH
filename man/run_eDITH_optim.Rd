@@ -12,7 +12,15 @@ run_eDITH_optim(data, river, covariates = NULL, Z.normalize = TRUE,
            use.AEM = FALSE, n.AEM = NULL, par.AEM = NULL,
            no.det = FALSE, ll.type = "norm", source.area = "AG",
            likelihood = NULL, sampler = NULL, n.attempts = 100, 
-		   par.optim = NULL, verbose = FALSE)
+		   par.optim = NULL, 
+		   tau.prior = list(spec="lnorm",a=0,b=Inf,
+		   meanlog=log(5), sd=sqrt(log(5)-log(4))),
+           log_p0.prior = list(spec="unif",min=-20, max=0),
+           beta.prior = list(spec="norm",sd=1),
+           sigma.prior = list(spec="unif",min=0, max=1*max(data$values, na.rm = TRUE)),
+           omega.prior = list(spec="unif",min=1, max=10*max(data$values, na.rm = TRUE)),
+           Cstar.prior = list(spec="unif",min=0, max=1*max(data$values, na.rm = TRUE)),
+		   verbose = FALSE)
 }
 
 \arguments{
@@ -41,8 +49,8 @@ run_eDITH_optim(data, river, covariates = NULL, Z.normalize = TRUE,
   \item{source.area}{Defines the extent of the source area of a node. Possible values are \code{"AG"} (if the source
   area is the reach surface, i.e. length*width), \code{"SC"} (if the source area is the subcatchment area), or,
   alternatively, a vector with length \code{river$AG$nodes}.}
-  \item{likelihood}{Likelihood function to be passed as \code{likelihood} argument to \code{\link{createBayesianSetup}}.
-  If not specified, it is generated based on arguments \code{no.det} and \code{ll.type}. }
+  \item{likelihood}{Likelihood function. If not specified, it is generated based on 
+  arguments \code{no.det} and \code{ll.type}. }
   \item{sampler}{Function generating sets of initial parameter values for the optimization algorithm. If \code{NULL}, 
   initial parameter values are drawn from the default prior distributions of \code{\link{run_eDITH_BT}}. See details.}
   \item{n.attempts}{Number of times the optimizing function \code{optim} is executed. Each time, \code{sampler} is used to 
@@ -50,9 +58,14 @@ run_eDITH_optim(data, river, covariates = NULL, Z.normalize = TRUE,
   \item{par.optim}{List of parameters to be passed to \code{\link{optim}}. By default, the likelihood is maximized (i.e., 
   \code{control$fnscale = -1}), and the maximum number of iterations is set to 1e6. The default optimization method is 
   "Nelder-Mead" (same default as in \code{optim}).}
+   \item{tau.prior, log_p0.prior,beta.prior,sigma.prior,omega.prior,Cstar.prior}{Prior distribution for the relevant
+  parameters of the eDITH model.}
   \item{verbose}{Logical. Should console output be displayed?}
 }
 \details{
+This function attempts to maximize the log-posterior (sum of log-likelihood and log-prior) via the 
+non-linear optimization function \code{\link{optim}}.  
+
 If specified by the user, \code{sampler} must be a function that produces as output a "named num" 
 vector of parameters. Parameter names must be same as in the \code{likelihood}. See example.
 
@@ -84,7 +97,7 @@ data(dataC)
 data(dataRead)
 
 ## fit eDNA concentration data - use AEMs as covariates
-set.seed(27)
+set.seed(9)
 out <- run_eDITH_optim(dataC, wigger, n.AEM = 10, 
 	n.attempts = 1) # reduced n.AEM, n.attempts for illustrative purposes
 	# it is recommended to attempt optimization several times to ensure convergence 
@@ -102,7 +115,7 @@ plot(out$C[dataC$ID], dataC$values,
 abline(a=0, b=1) 
 
 ## fit eDNA read number data - use AEMs as covariates
-set.seed(4)
+set.seed(5)
 out <- run_eDITH_optim(dataRead, wigger, ll.type = "nbinom", 
 			par.AEM = list(weight = "gravity"), 
 			n.attempts = 1) # reduced n.attempts for illustrative purposes
