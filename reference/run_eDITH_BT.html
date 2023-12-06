@@ -223,7 +223,7 @@ the chosen likelihood).</p></dd>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Covariates not specified. Production rates will be estimated</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>                       based on the first n.AEM = 26 AEMs. </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Running DREAM-MCMC, chain  1 iteration 300 of 1002 . Current logp  1718.183 1854.383 1815.865 Please wait!  Running DREAM-MCMC, chain  1 iteration 600 of 1002 . Current logp  1747.124 1860.675 1856.744 Please wait!  Running DREAM-MCMC, chain  1 iteration 900 of 1002 . Current logp  1751.218 1860.362 1858.926 Please wait!  Running DREAM-MCMC, chain  1 iteration 1002 of 1002 . Current logp  1860.589 1860.362 1866.549 Please wait! </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> runMCMC terminated after 2.103seconds</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> runMCMC terminated after 2.108seconds</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> gelmanDiagnostics could not be calculated, possibly there is not enoug variance in your MCMC chains. Try running the sampler longer</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># \donttest{</span></span></span>
@@ -250,7 +250,7 @@ the chosen likelihood).</p></dd>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Covariates not specified. Production rates will be estimated</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>                       based on the first n.AEM = 26 AEMs. </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Running DREAM-MCMC, chain  1 iteration 300 of 1002 . Current logp  -686.9741 -665.4549 -898.7046 Please wait!  Running DREAM-MCMC, chain  1 iteration 600 of 1002 . Current logp  -604.4475 -612.4648 -784.337 Please wait!  Running DREAM-MCMC, chain  1 iteration 900 of 1002 . Current logp  -435.4761 -500.5367 -738.2181 Please wait!  Running DREAM-MCMC, chain  1 iteration 1002 of 1002 . Current logp  -435.4761 -500.5367 -738.2181 Please wait! </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> runMCMC terminated after 2.6seconds</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> runMCMC terminated after 2.589seconds</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> gelmanDiagnostics could not be calculated, possibly there is not enoug variance in your MCMC chains. Try running the sampler longer</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## use user-defined covariates</span></span></span>
@@ -263,14 +263,14 @@ the chosen likelihood).</p></dd>
 <span class="r-in"><span><span class="va">out.cov</span> <span class="op">&lt;-</span>   <span class="fu">run_eDITH_BT</span><span class="op">(</span><span class="va">dataC</span>, <span class="va">wigger</span>, <span class="va">covariates</span>, </span></span>
 <span class="r-in"><span>  mcmc.settings <span class="op">=</span> <span class="va">settings.short</span><span class="op">)</span> <span class="co"># use default mcmc.settings to ensure convergence</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Running DREAM-MCMC, chain  1 iteration 300 of 1002 . Current logp  1879.684 1875.527 1892.416 Please wait!  Running DREAM-MCMC, chain  1 iteration 600 of 1002 . Current logp  1889.913 1878.238 1892.246 Please wait!  Running DREAM-MCMC, chain  1 iteration 900 of 1002 . Current logp  1889.309 1888.549 1890.724 Please wait!  Running DREAM-MCMC, chain  1 iteration 1002 of 1002 . Current logp  1898.566 1889.417 1891.649 Please wait! </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> runMCMC terminated after 0.661999999999999seconds</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> runMCMC terminated after 0.661000000000001seconds</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># use user-defined covariates and AEMs</span></span></span>
 <span class="r-in"><span><span class="va">out.covAEM</span> <span class="op">&lt;-</span>   <span class="fu">run_eDITH_BT</span><span class="op">(</span><span class="va">dataC</span>, <span class="va">wigger</span>, <span class="va">covariates</span>, </span></span>
 <span class="r-in"><span>  use.AEM <span class="op">=</span> <span class="cn">TRUE</span>, par.AEM <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>weight <span class="op">=</span> <span class="st">"gravity"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  mcmc.settings <span class="op">=</span> <span class="va">settings.short</span><span class="op">)</span> <span class="co"># use default mcmc.settings to ensure convergence  </span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Running DREAM-MCMC, chain  1 iteration 300 of 1002 . Current logp  1746.426 -29078.04 1805.56 Please wait!  Running DREAM-MCMC, chain  1 iteration 600 of 1002 . Current logp  1762.692 1822.293 1807.302 Please wait!  Running DREAM-MCMC, chain  1 iteration 900 of 1002 . Current logp  1792.439 1822.293 1807.302 Please wait!  Running DREAM-MCMC, chain  1 iteration 1002 of 1002 . Current logp  1792.439 1822.293 1807.302 Please wait! </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> runMCMC terminated after 2.237seconds</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> runMCMC terminated after 2.209seconds</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> gelmanDiagnostics could not be calculated, possibly there is not enoug variance in your MCMC chains. Try running the sampler longer</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># use AEMs with significantly positive spatial autocorrelation</span></span></span>
@@ -280,7 +280,7 @@ the chosen likelihood).</p></dd>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Covariates not specified. Production rates will be estimated</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>                       based on the first n.AEM = 26 AEMs. </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Running DREAM-MCMC, chain  1 iteration 300 of 1002 . Current logp  1606.697 1600.336 -180806.9 Please wait!  Running DREAM-MCMC, chain  1 iteration 600 of 1002 . Current logp  1611.237 1607.149 -119385.3 Please wait!  Running DREAM-MCMC, chain  1 iteration 900 of 1002 . Current logp  1607.692 1607.149 -119319.6 Please wait!  Running DREAM-MCMC, chain  1 iteration 1002 of 1002 . Current logp  1608.786 1628.349 -119319.6 Please wait! </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> runMCMC terminated after 7.871seconds</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> runMCMC terminated after 7.79199999999999seconds</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> gelmanDiagnostics could not be calculated, possibly there is not enoug variance in your MCMC chains. Try running the sampler longer</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## use posterior sample to specify user-defined prior</span></span></span>
@@ -1298,7 +1298,7 @@ the chosen likelihood).</p></dd>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>NaNs produced</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>NaNs produced</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Running DREAM-MCMC, chain  1 iteration 1002 of 1002 . Current logp  1444.823 1495.063 1388.418 Please wait! </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> runMCMC terminated after 3.28100000000001seconds</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> runMCMC terminated after 3.273seconds</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> gelmanDiagnostics could not be calculated, possibly there is not enoug variance in your MCMC chains. Try running the sampler longer</span>
 <span class="r-in"><span>  </span></span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
