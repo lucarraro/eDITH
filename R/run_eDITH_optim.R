@@ -103,7 +103,7 @@ run_eDITH_optim <-
       tau_vec[ind] <- out$par["tau"]
       counts[ind] <- out$counts["function"]
       conv[ind] <- out$convergence
-      if (out$par["tau"]<0) out$value = -Inf # discard solutions with negative tau (unnecessary with logit transf)
+      # if (out$par["tau"]<0) out$value = -Inf # discard solutions with negative tau (unnecessary with logit transf)
       ll_end_vec[ind] <- out$value
       if (ind > 1){
         if (ll_end_vec[ind] > max(ll_end_vec[1:(ind-1)])) out_optim <- out
