@@ -25,6 +25,7 @@ Suggests:
     rmarkdown,
     bookdown
 VignetteBuilder: knitr
-URL: https://lucarraro.github.io/eDITH/
+URL: https://lucarraro.github.io/eDITH/, https://github.com/lucarraro/eDITH
+BugReports: https://github.com/lucarraro/eDITH/issues
 Imports: Rcpp (>= 1.0.10), OCNet (>= 1.1.0), rivnet (>= 0.3.1), BayesianTools, LaplacesDemon, DHARMa, terra, fields
 LinkingTo: Rcpp
