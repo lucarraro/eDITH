@@ -1,10 +1,10 @@
-<img align="right" width="250" src="man/figures/edith_logo.png">
+# eDITH <img align="right" width="250" src="man/figures/logo.png">
 
-# eDITH
+<!-- badges: start -->
+[![CRAN](http://www.r-pkg.org/badges/version/eDITH)](http://CRAN.R-project.org/package=eDITH)
+<!-- badges: end -->
 
 An R package to model transport of environmental DNA in river networks
-
-[![CRAN](http://www.r-pkg.org/badges/version/eDITH)](http://CRAN.R-project.org/package=eDITH)
 
 ## Overview
 
