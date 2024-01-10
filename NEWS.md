@@ -9,6 +9,7 @@ have been added.
 
 - `run_eDITH_BT`, `run_eDITH_optim`: updated error messages when unsuitable input is used.
 - Vignette updated.
+- BugReports link added in `DESCRIPTION`.
 
 ## Bugs fixed
 
