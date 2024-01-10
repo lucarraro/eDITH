@@ -1,6 +1,4 @@
-<img align="right" width="250" src="man/figures/logo.png">
-
-# eDITH
+# eDITH <img align="right" width="250" src="man/figures/logo.png">
 
 An R package to model transport of environmental DNA in river networks
 
