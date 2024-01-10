@@ -4,6 +4,7 @@
 [![CRAN](http://www.r-pkg.org/badges/version/eDITH)](http://CRAN.R-project.org/package=eDITH)
 <!-- badges: end -->
 
+
 An R package to model transport of environmental DNA in river networks
 
 ## Overview
