@@ -1,4 +1,4 @@
-# eDITH 0.1.2.9000
+# eDITH 0.2.0
 
 ## Major changes
 
