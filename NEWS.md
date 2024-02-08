@@ -1,3 +1,9 @@
+# eDITH 0.2.0.9000
+
+## Minor changes
+
+- `run_eDITH_optim`: `attempts.stats` is exported.
+
 # eDITH 0.2.0
 
 ## Major changes

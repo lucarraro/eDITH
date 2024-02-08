@@ -112,6 +112,7 @@ run_eDITH_optim <-
     }
     if (verbose) message("100% done    \n", appendLF = FALSE)
 
+    attempts.stats <- list(lp=ll_end_vec, counts=counts, conv=conv, tau=tau_vec)
 
     tmp <- eval.pC.pD(out_optim$par, river, ss, covariates, source.area,
                       q, ll.type, no.det)
@@ -122,7 +123,7 @@ run_eDITH_optim <-
                 param = param,
                 ll.type=ll.type, no.det=no.det, data=data,
                 covariates = covariates, source.area = source.area,
-                out_optim = out_optim)
+                out_optim = out_optim, attempts.stats = attempts.stats)
 
     invisible(out)
 

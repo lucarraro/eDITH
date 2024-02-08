@@ -87,6 +87,9 @@ the chosen likelihood).}
 \item{source.area}{Vector of source area values.}
 \item{out_optim}{List as provided by \code{optim}. Only the result of the call to \code{optim} (out of \code{n.attempts})
 yielding the highest likelihood is exported.} 
+\item{attempts.stats}{List containing relevant output for the different optimization attempts. It contains \code{lp} 
+(vector of maximized log-posterior values for each single attempt), \code{counts} (total function evaluations), \code{conv} 
+(convergence flags as produced by \code{optim}), and \code{tau} (best-fit decay time values in h).} 
 Moreover, arguments \code{ll.type} (possibly changed to \code{"custom"} if a custom likelihood is specified), \code{no.det} 
 and \code{data} are added to the list.
 }
