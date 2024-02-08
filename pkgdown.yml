@@ -3,7 +3,7 @@ pkgdown: 2.0.7
 pkgdown_sha: ~
 articles:
   eDITH: eDITH.html
-last_built: 2024-01-29T20:14Z
+last_built: 2024-02-08T12:27Z
 urls:
   reference: https://lucarraro.github.io/eDITH/reference
   article: https://lucarraro.github.io/eDITH/articles

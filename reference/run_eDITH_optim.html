@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">eDITH</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0.9000</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -181,6 +181,11 @@ the chosen likelihood).</p></dd>
 <dt>out_optim</dt>
 <dd><p>List as provided by <code>optim</code>. Only the result of the call to <code>optim</code> (out of <code>n.attempts</code>)
 yielding the highest likelihood is exported.</p></dd>
+ 
+<dt>attempts.stats</dt>
+<dd><p>List containing relevant output for the different optimization attempts. It contains <code>lp</code> 
+(vector of maximized log-posterior values for each single attempt), <code>counts</code> (total function evaluations), <code>conv</code> 
+(convergence flags as produced by <code>optim</code>), and <code>tau</code> (best-fit decay time values in h).</p></dd>
  
 </dl><p>Moreover, arguments <code>ll.type</code> (possibly changed to <code>"custom"</code> if a custom likelihood is specified), <code>no.det</code></p>
  
