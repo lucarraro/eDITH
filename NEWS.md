@@ -7,6 +7,7 @@
 ## Minor changes
 
 - `run_eDITH_optim`: `attempts.stats` is exported.
+- `CITATION` added.
 
 # eDITH 0.2.0
 
