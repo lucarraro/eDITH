@@ -3,7 +3,7 @@ run_eDITH_optim <-
            use.AEM = FALSE, n.AEM = NULL, par.AEM = NULL,
            no.det = FALSE, ll.type = "norm", source.area = "AG",
            likelihood = NULL, sampler = NULL, n.attempts = 100,
-           par.optim = NULL,
+           n.restarts = round(n.attempts/10), par.optim = NULL,
            tau.prior = list(spec="lnorm",a=0,b=Inf, meanlog=log(5), sd=sqrt(log(5)-log(4))),
            log_p0.prior = list(spec="unif",min=-20, max=0),
            beta.prior = list(spec="norm",sd=1),
@@ -98,7 +98,7 @@ run_eDITH_optim <-
 
     ll_end_vec <- counts <- conv <- tau_vec <-  numeric(n.attempts)
     for (ind in 1:n.attempts){
-      if (ind %in% seq(1,n.attempts,5)){ # start 5 different times
+      if (ind %in% seq(1,n.attempts,ceiling(n.attempts/n.restarts))){ # start n.restarts different times
         par.optim$par <- sampler(1)
       } else {par.optim$par <- out$par}
       out <- suppressWarnings(do.call(optim, par.optim))
