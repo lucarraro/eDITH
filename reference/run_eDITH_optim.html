@@ -58,7 +58,7 @@
 <span>           use.AEM <span class="op">=</span> <span class="cn">FALSE</span>, n.AEM <span class="op">=</span> <span class="cn">NULL</span>, par.AEM <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>           no.det <span class="op">=</span> <span class="cn">FALSE</span>, ll.type <span class="op">=</span> <span class="st">"norm"</span>, source.area <span class="op">=</span> <span class="st">"AG"</span>,</span>
 <span>           likelihood <span class="op">=</span> <span class="cn">NULL</span>, sampler <span class="op">=</span> <span class="cn">NULL</span>, n.attempts <span class="op">=</span> <span class="fl">100</span>, </span>
-<span>       par.optim <span class="op">=</span> <span class="cn">NULL</span>, </span>
+<span>       n.restarts <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">n.attempts</span><span class="op">/</span><span class="fl">10</span><span class="op">)</span>, par.optim <span class="op">=</span> <span class="cn">NULL</span>, </span>
 <span>       tau.prior <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>spec<span class="op">=</span><span class="st">"lnorm"</span>,a<span class="op">=</span><span class="fl">0</span>,b<span class="op">=</span><span class="cn">Inf</span>,</span>
 <span>       meanlog<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span>, sd<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">4</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>           log_p0.prior <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>spec<span class="op">=</span><span class="st">"unif"</span>,min<span class="op">=</span><span class="op">-</span><span class="fl">20</span>, max<span class="op">=</span><span class="fl">0</span><span class="op">)</span>,</span>
@@ -125,8 +125,12 @@
   initial parameter values are drawn from the default prior distributions of <code><a href="run_eDITH_BT.html">run_eDITH_BT</a></code>. See details.</p></dd>
 
   <dt>n.attempts</dt>
-<dd><p>Number of times the optimizing function <code>optim</code> is executed. Each time, <code>sampler</code> is used to 
-  draw an initial parameter set.</p></dd>
+<dd><p>Number of times the optimizing function <code>optim</code> is executed. Every time a "restart" happens 
+  (see <code>n.restarts</code>), <code>sampler</code> is used to draw an initial parameter set. If a "restart" does not happen, 
+  the optimal parameter set from the previous attempt is used as initial parameter set.</p></dd>
+
+  <dt>n.restarts</dt>
+<dd><p>Number of times a random parameter set is drawn as initial condition for <code>optim</code>.</p></dd>
 
   <dt>par.optim</dt>
 <dd><p>List of parameters to be passed to <code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">optim</a></code>. By default, the likelihood is maximized (i.e., 
