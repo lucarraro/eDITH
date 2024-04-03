@@ -12,7 +12,7 @@ run_eDITH_optim(data, river, covariates = NULL, Z.normalize = TRUE,
            use.AEM = FALSE, n.AEM = NULL, par.AEM = NULL,
            no.det = FALSE, ll.type = "norm", source.area = "AG",
            likelihood = NULL, sampler = NULL, n.attempts = 100, 
-		   par.optim = NULL, 
+		   n.restarts = round(n.attempts/10), par.optim = NULL, 
 		   tau.prior = list(spec="lnorm",a=0,b=Inf,
 		   meanlog=log(5), sd=sqrt(log(5)-log(4))),
            log_p0.prior = list(spec="unif",min=-20, max=0),
@@ -53,8 +53,10 @@ run_eDITH_optim(data, river, covariates = NULL, Z.normalize = TRUE,
   arguments \code{no.det} and \code{ll.type}. }
   \item{sampler}{Function generating sets of initial parameter values for the optimization algorithm. If \code{NULL}, 
   initial parameter values are drawn from the default prior distributions of \code{\link{run_eDITH_BT}}. See details.}
-  \item{n.attempts}{Number of times the optimizing function \code{optim} is executed. Each time, \code{sampler} is used to 
-  draw an initial parameter set.}
+  \item{n.attempts}{Number of times the optimizing function \code{optim} is executed. Every time a "restart" happens 
+  (see \code{n.restarts}), \code{sampler} is used to draw an initial parameter set. If a "restart" does not happen, 
+  the optimal parameter set from the previous attempt is used as initial parameter set.}
+  \item{n.restarts}{Number of times a random parameter set is drawn as initial condition for \code{optim}.}
   \item{par.optim}{List of parameters to be passed to \code{\link{optim}}. By default, the likelihood is maximized (i.e., 
   \code{control$fnscale = -1}), and the maximum number of iterations is set to 1e6. The default optimization method is 
   "Nelder-Mead" (same default as in \code{optim}).}

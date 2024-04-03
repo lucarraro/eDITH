@@ -1,0 +1,5 @@
+bibentry(bibtype = "article", header = "To cite 'eDITH' in publications use:",
+         title = "eDITH: An R-package to spatially project eDNA-based biodiversity across river networks with minimal prior information",
+         author = c(person("Luca", "Carraro"), person("Florian", "Altermatt")),
+         year = "2024", journal = "Methods in Ecology and Evolution", 
+         doi = "10.1111/2041-210X.14317")

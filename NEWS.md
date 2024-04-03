@@ -1,8 +1,13 @@
 # eDITH 0.2.0.9000
 
+## Major changes
+
+- `run_eDITH_optim`: argument `n.restarts` is added.
+
 ## Minor changes
 
 - `run_eDITH_optim`: `attempts.stats` is exported.
+- `CITATION` added.
 
 # eDITH 0.2.0
 
