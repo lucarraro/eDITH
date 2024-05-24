@@ -16,9 +16,6 @@ eval_posterior_eDITH(x, river, quant = 0.5)
   \item{river}{A \code{river} object generated via \code{\link{aggregate_river}}.}
   \item{quant}{Vector of quantiles.}
 }
-\details{
-Add details.
-}
 \value{
 The output list copies all objects of the input \code{x} list. The following objects are added:
 \item{p_quantile}{Selected quantiles (along rows) of the posterior distribution of production rates.}

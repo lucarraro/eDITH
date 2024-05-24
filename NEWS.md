@@ -1,4 +1,13 @@
-# eDITH 0.2.0.9000
+# eDITH 1.0.0
+
+## Major changes
+
+- Functions `run_eDITH_BT_joint`, `run_eDITH_optim_joint` added.
+- Functions `sampling_strategy_eDNA`, `sampling_strategy_direct` added.
+- Dataset `dataCD` added.
+- Dependency to `rivnet` >= 0.4.2 updated.
+
+# eDITH 0.3.0
 
 ## Major changes
 

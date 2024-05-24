@@ -19,6 +19,10 @@ run_eDITH_BT <-
       stop('If eDNA data are log-normally distributed, non-detections must be accounted for.')
     }
 
+    if (!all(names(data) %in% c("ID","values"))){
+      stop("data must contain fields named 'ID' and 'values'.")
+    }
+
     if (length(river$AG$A)==0) {
       stop('river is not aggregated. You should run rivnet::aggregate_river on river prior to run_eDITH_BT.')}
 

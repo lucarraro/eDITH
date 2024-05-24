@@ -1,7 +1,7 @@
 Package: eDITH
 Type: Package
 Title: Model Transport of Environmental DNA in River Networks
-Version: 0.2.0.9000
+Version: 1.0.0
 Authors@R: 
     c(person("Luca", "Carraro", 
 	email = "luca.carraro@hotmail.it", role = c("cre", "aut")),
@@ -28,5 +28,5 @@ Suggests:
 VignetteBuilder: knitr
 URL: https://lucarraro.github.io/eDITH/, https://github.com/lucarraro/eDITH
 BugReports: https://github.com/lucarraro/eDITH/issues
-Imports: Rcpp (>= 1.0.10), OCNet (>= 1.1.0), rivnet (>= 0.3.1), BayesianTools, LaplacesDemon, DHARMa, terra, fields
+Imports: Rcpp (>= 1.0.10), OCNet (>= 1.1.0), rivnet (>= 0.4.2), BayesianTools, LaplacesDemon, DHARMa, terra, fields
 LinkingTo: Rcpp
