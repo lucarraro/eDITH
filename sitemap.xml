@@ -25,6 +25,9 @@
     <loc>https://lucarraro.github.io/eDITH/reference/dataC.html</loc>
   </url>
   <url>
+    <loc>https://lucarraro.github.io/eDITH/reference/dataCD.html</loc>
+  </url>
+  <url>
     <loc>https://lucarraro.github.io/eDITH/reference/dataRead.html</loc>
   </url>
   <url>
@@ -46,10 +49,22 @@
     <loc>https://lucarraro.github.io/eDITH/reference/run_eDITH_BT.html</loc>
   </url>
   <url>
+    <loc>https://lucarraro.github.io/eDITH/reference/run_eDITH_BT_joint.html</loc>
+  </url>
+  <url>
     <loc>https://lucarraro.github.io/eDITH/reference/run_eDITH_optim.html</loc>
   </url>
   <url>
+    <loc>https://lucarraro.github.io/eDITH/reference/run_eDITH_optim_joint.html</loc>
+  </url>
+  <url>
     <loc>https://lucarraro.github.io/eDITH/reference/run_eDITH_single.html</loc>
+  </url>
+  <url>
+    <loc>https://lucarraro.github.io/eDITH/reference/sampling_strategy_direct.html</loc>
+  </url>
+  <url>
+    <loc>https://lucarraro.github.io/eDITH/reference/sampling_strategy_eDNA.html</loc>
   </url>
   <url>
     <loc>https://lucarraro.github.io/eDITH/reference/wigger.html</loc>
