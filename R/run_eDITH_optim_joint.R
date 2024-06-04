@@ -112,6 +112,7 @@ run_eDITH_optim_joint <-
 
     ll_end_vec <- counts <- conv <- tau_vec <-  numeric(n.attempts)
     for (ind in 1:n.attempts){
+      par.optim$par <- sampler(1)
       if (ind %in% seq(1,n.attempts,ceiling(n.attempts/n.restarts))){ # start n.restarts different times
         par.optim$par <- sampler(1)
       } else {par.optim$par <- out$par}

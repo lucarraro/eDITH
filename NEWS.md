@@ -1,3 +1,7 @@
+# eDITH 1.0.0.9000
+
+- Functions `run_eDITH_optim`, `run_eDITH_optim_joint` have initial parameter set redefined.
+
 # eDITH 1.0.0
 
 ## Major changes
