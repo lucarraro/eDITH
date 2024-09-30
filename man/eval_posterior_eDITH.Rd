@@ -18,10 +18,12 @@ eval_posterior_eDITH(x, river, quant = 0.5)
 }
 \value{
 The output list copies all objects of the input \code{x} list. The following objects are added:
+\item{param_quantile}{Selected quantiles (along rows) of the posterior distribution of model parameters.}
 \item{p_quantile}{Selected quantiles (along rows) of the posterior distribution of production rates.}
 \item{C_quantile}{Selected quantiles (along rows) of the posterior distribution of eDNA values 
 (concentrations or read numbers).}
 \item{probDet_quantile}{Selected quantiles (along rows) of the posterior distribution of detection probability.}
+\item{param_mean}{Mean of the posterior distribution of model parameters.}
 \item{p_mean}{Mean of the posterior distribution of production rates.}
 \item{C_mean}{Mean of the posterior distribution of eDNA values (concentrations or read numbers).}
 \item{probDet_mean}{Mean of the posterior distribution of detection probability.}

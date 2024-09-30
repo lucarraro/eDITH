@@ -50,6 +50,9 @@ eval_posterior_eDITH <- function(x, river, quant=0.5){
   x[["p_mean"]]   <- apply(p_mat,2,mean)
   x[["C_mean"]]   <- apply(C_mat,2,mean)
 
+  x[["param_quantile"]] <- apply(mcmc.sample,2,quantile,quant)
+  x[["param_mean"]] <- apply(mcmc.sample,2,mean)
+
   if (x$ll.type=="custom"){
     x[["probDetection_quantile"]] <- x[["probDetection_mean"]] <- numeric(0)
   } else {

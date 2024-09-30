@@ -1,6 +1,7 @@
 # eDITH 1.0.0.9000
 
 - Functions `run_eDITH_optim`, `run_eDITH_optim_joint` have initial parameter set redefined.
+- Function `eval_posterior_eDITH` exports quantiles and mean of the model parameters.
 
 # eDITH 1.0.0
 
