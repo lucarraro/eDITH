@@ -1,72 +1,26 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://lucarraro.github.io/eDITH/404.html</loc>
-  </url>
-  <url>
-    <loc>https://lucarraro.github.io/eDITH/LICENSE-text.html</loc>
-  </url>
-  <url>
-    <loc>https://lucarraro.github.io/eDITH/articles/eDITH.html</loc>
-  </url>
-  <url>
-    <loc>https://lucarraro.github.io/eDITH/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>https://lucarraro.github.io/eDITH/authors.html</loc>
-  </url>
-  <url>
-    <loc>https://lucarraro.github.io/eDITH/index.html</loc>
-  </url>
-  <url>
-    <loc>https://lucarraro.github.io/eDITH/news/index.html</loc>
-  </url>
-  <url>
-    <loc>https://lucarraro.github.io/eDITH/reference/dataC.html</loc>
-  </url>
-  <url>
-    <loc>https://lucarraro.github.io/eDITH/reference/dataCD.html</loc>
-  </url>
-  <url>
-    <loc>https://lucarraro.github.io/eDITH/reference/dataRead.html</loc>
-  </url>
-  <url>
-    <loc>https://lucarraro.github.io/eDITH/reference/eDITH-package.html</loc>
-  </url>
-  <url>
-    <loc>https://lucarraro.github.io/eDITH/reference/eval_posterior_eDITH.html</loc>
-  </url>
-  <url>
-    <loc>https://lucarraro.github.io/eDITH/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>https://lucarraro.github.io/eDITH/reference/outSample.html</loc>
-  </url>
-  <url>
-    <loc>https://lucarraro.github.io/eDITH/reference/posterior_pred_sim_eDITH.html</loc>
-  </url>
-  <url>
-    <loc>https://lucarraro.github.io/eDITH/reference/run_eDITH_BT.html</loc>
-  </url>
-  <url>
-    <loc>https://lucarraro.github.io/eDITH/reference/run_eDITH_BT_joint.html</loc>
-  </url>
-  <url>
-    <loc>https://lucarraro.github.io/eDITH/reference/run_eDITH_optim.html</loc>
-  </url>
-  <url>
-    <loc>https://lucarraro.github.io/eDITH/reference/run_eDITH_optim_joint.html</loc>
-  </url>
-  <url>
-    <loc>https://lucarraro.github.io/eDITH/reference/run_eDITH_single.html</loc>
-  </url>
-  <url>
-    <loc>https://lucarraro.github.io/eDITH/reference/sampling_strategy_direct.html</loc>
-  </url>
-  <url>
-    <loc>https://lucarraro.github.io/eDITH/reference/sampling_strategy_eDNA.html</loc>
-  </url>
-  <url>
-    <loc>https://lucarraro.github.io/eDITH/reference/wigger.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://lucarraro.github.io/eDITH/404.html</loc></url>
+<url><loc>https://lucarraro.github.io/eDITH/LICENSE-text.html</loc></url>
+<url><loc>https://lucarraro.github.io/eDITH/articles/eDITH.html</loc></url>
+<url><loc>https://lucarraro.github.io/eDITH/articles/index.html</loc></url>
+<url><loc>https://lucarraro.github.io/eDITH/authors.html</loc></url>
+<url><loc>https://lucarraro.github.io/eDITH/index.html</loc></url>
+<url><loc>https://lucarraro.github.io/eDITH/news/index.html</loc></url>
+<url><loc>https://lucarraro.github.io/eDITH/reference/dataC.html</loc></url>
+<url><loc>https://lucarraro.github.io/eDITH/reference/dataCD.html</loc></url>
+<url><loc>https://lucarraro.github.io/eDITH/reference/dataRead.html</loc></url>
+<url><loc>https://lucarraro.github.io/eDITH/reference/eDITH-package.html</loc></url>
+<url><loc>https://lucarraro.github.io/eDITH/reference/eval_posterior_eDITH.html</loc></url>
+<url><loc>https://lucarraro.github.io/eDITH/reference/index.html</loc></url>
+<url><loc>https://lucarraro.github.io/eDITH/reference/outSample.html</loc></url>
+<url><loc>https://lucarraro.github.io/eDITH/reference/posterior_pred_sim_eDITH.html</loc></url>
+<url><loc>https://lucarraro.github.io/eDITH/reference/run_eDITH_BT.html</loc></url>
+<url><loc>https://lucarraro.github.io/eDITH/reference/run_eDITH_BT_joint.html</loc></url>
+<url><loc>https://lucarraro.github.io/eDITH/reference/run_eDITH_optim.html</loc></url>
+<url><loc>https://lucarraro.github.io/eDITH/reference/run_eDITH_optim_joint.html</loc></url>
+<url><loc>https://lucarraro.github.io/eDITH/reference/run_eDITH_single.html</loc></url>
+<url><loc>https://lucarraro.github.io/eDITH/reference/sampling_strategy_direct.html</loc></url>
+<url><loc>https://lucarraro.github.io/eDITH/reference/sampling_strategy_eDNA.html</loc></url>
+<url><loc>https://lucarraro.github.io/eDITH/reference/wigger.html</loc></url>
 </urlset>
+
