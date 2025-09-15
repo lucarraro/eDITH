@@ -27,7 +27,7 @@ run_eDITH_optim(data, river, covariates = NULL, Z.normalize = TRUE,
   \item{data}{eDNA data. Data frame containing columns \code{ID} (index of the AG node/reach where 
   the eDNA sample was taken) and \code{values} (value of the eDNA measurement, expressed as concentration
   or number of reads). }
-  \item{river}{A \code{river} object generated via \code{\link{aggregate_river}}.}
+  \item{river}{A \code{river} object generated via \code{\link[rivnet]{aggregate_river}}.}
   \item{covariates}{Data frame containing covariate values for all \code{river} reaches. If \code{NULL} (default
   option), production rates are estimated via AEMs.}
   \item{Z.normalize}{Logical. Should covariates be Z-normalized?}
@@ -37,7 +37,7 @@ run_eDITH_optim(data, river, covariates = NULL, Z.normalize = TRUE,
    \item{n.AEM}{Number of AEM eigenvectors (sorted by the decreasing respective eigenvalue) to be used as covariates. If 
    \code{par.AEM$moranI = TRUE}, this parameter is not used. Instead, the eigenvectors with significantly positive spatial
    autocorrelation are used as AEM covariates.}
-  \item{par.AEM}{List of additional parameters that are passed to \code{\link{river_to_AEM}} for calculation of AEMs. 
+  \item{par.AEM}{List of additional parameters that are passed to \code{\link[rivnet]{river_to_AEM}} for calculation of AEMs. 
   In particular, \code{par.AEM$moranI = TRUE} imposes the use of AEM covariates with significantly positive spatial 
   autocorrelation based on Moran's I statistic. }
   \item{no.det}{Logical. Should a probability of non-detection be included in the model?}

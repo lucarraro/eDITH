@@ -39,7 +39,7 @@ run_eDITH_BT_joint(data, river, covariates = NULL, Z.normalize = TRUE,
   the sample was taken), \code{values} (value of the eDNA or direct measurement) and \code{type} 
   (equal to \code{"e"} for eDNA data and to \code{"d"} for direct observation data). eDNA values 
   are expressed as concentration or number of reads; direct observations are expressed as numbers of individuals. }
-  \item{river}{A \code{river} object generated via \code{\link{aggregate_river}}.}
+  \item{river}{A \code{river} object generated via \code{\link[rivnet]{aggregate_river}}.}
   \item{covariates}{Data frame containing covariate values for all \code{river} reaches. If \code{NULL} (default
   option), production rates are estimated via AEMs.}
   \item{Z.normalize}{Logical. Should covariates be Z-normalized?}
@@ -49,7 +49,7 @@ run_eDITH_BT_joint(data, river, covariates = NULL, Z.normalize = TRUE,
    \item{n.AEM}{Number of AEM eigenvectors (sorted by the decreasing respective eigenvalue) to be used as covariates. If 
    \code{par.AEM$moranI = TRUE}, this parameter is not used. Instead, the eigenvectors with significantly positive spatial
    autocorrelation are used as AEM covariates.}
-  \item{par.AEM}{List of additional parameters that are passed to \code{\link{river_to_AEM}} for calculation of AEMs. 
+  \item{par.AEM}{List of additional parameters that are passed to \code{\link[rivnet]{river_to_AEM}} for calculation of AEMs. 
   In particular, \code{par.AEM$moranI = TRUE} imposes the use of AEM covariates with significantly positive spatial 
   autocorrelation based on Moran's I statistic. }
   \item{no.det}{Logical. Should a probability of non-detection be included in the model?}
@@ -61,15 +61,15 @@ run_eDITH_BT_joint(data, river, covariates = NULL, Z.normalize = TRUE,
   \item{source.area}{Defines the extent of the source area of a node. Possible values are \code{"AG"} (if the source
   area is the reach surface, i.e. length*width), \code{"SC"} (if the source area is the subcatchment area), or,
   alternatively, a vector with length \code{river$AG$nodes}.}
-  \item{mcmc.settings}{List. It is passed as argument \code{settings} in \code{\link{runMCMC}}. Default is 
+  \item{mcmc.settings}{List. It is passed as argument \code{settings} in \code{\link[BayesianTools]{runMCMC}}. Default is 
   \code{list(iterations = 2.7e6, burnin=1.8e6, message = TRUE, thin = 10).}}
-  \item{likelihood}{Likelihood function to be passed as \code{likelihood} argument to \code{\link{createBayesianSetup}}.
+  \item{likelihood}{Likelihood function to be passed as \code{likelihood} argument to \code{\link[BayesianTools]{createBayesianSetup}}.
   If not specified, it is generated based on arguments \code{no.det} and \code{ll.type}. If a custom likelihood is specified, 
   a custom \code{prior} must also be specified.}
-  \item{prior}{Prior function to be passed as \code{prior} argument to \code{\link{createBayesianSetup}}.
+  \item{prior}{Prior function to be passed as \code{prior} argument to \code{\link[BayesianTools]{createBayesianSetup}}.
   If not specified, it is generated based on the \code{*.prior} arguments provided. If a user-defined prior is provided,
   parameter names must be included in \code{prior$lower}, \code{prior$upper} (see example).}
-  \item{sampler.type}{Character. It is passed as argument \code{sampler} in \code{\link{runMCMC}}.}
+  \item{sampler.type}{Character. It is passed as argument \code{sampler} in \code{\link[BayesianTools]{runMCMC}}.}
   \item{tau.prior}{List that defines the prior distribution for the decay time parameter \code{tau}. See details. }
   \item{log_p0.prior}{List that defines the prior distribution for the logarithm (in base 10) of the baseline production rate 
   \code{p0}.  See details. If \code{covariates = NULL}, this defines the prior distribution for the logarithm (in base 10) of 
@@ -91,7 +91,7 @@ run_eDITH_BT_joint(data, river, covariates = NULL, Z.normalize = TRUE,
   \item{verbose}{Logical. Should console output be displayed?}
 }
 \details{
-The arguments of the type \code{*.prior} consist in the lists  of arguments required by \code{\link{dtrunc}} 
+The arguments of the type \code{*.prior} consist in the lists  of arguments required by \code{\link[LaplacesDemon]{dtrunc}} 
 (except the first argument \code{x}).
 
 By default, AEMs are computed without attributing weights to the edges  of the river network. 
@@ -100,7 +100,7 @@ Use e.g. \code{par.AEM = list(weight = "gravity")} to attribute weights.
 \value{
 A list with objects:
 \item{param_map}{Vector of named parameters corresponding to the maximum a posteriori estimate. It is the
-output of the call to \code{\link{MAP}}.}
+output of the call to \code{\link[BayesianTools]{MAP}}.}
 \item{p_map}{Vector of best-fit eDNA production rates corresponding to the maximum a posteriori parameter 
 estimate \code{param_map}. It has length equal to \code{river$AG$nNodes}.}
 \item{C_map}{Vector of best-fit eDNA values (in the same unit as \code{data$values}, i.e. concentrations or read numbers) 
@@ -109,11 +109,11 @@ corresponding to the maximum a posteriori parameter  estimate \code{param_map}. 
 parameter estimate \code{param_map}. It has length equal to \code{river$AG$nNodes}. If a custom \code{likelihood} is provided,
 this is a vector of null length (in which case the user should calculate the probability of detection independently, based on
 the chosen likelihood).}
-\item{cI}{Output of the call to \code{\link{getCredibleIntervals}}.}
-\item{gD}{Output of the call to \code{\link{gelmanDiagnostics}}.}
+\item{cI}{Output of the call to \code{\link[BayesianTools]{getCredibleIntervals}}.}
+\item{gD}{Output of the call to \code{\link[BayesianTools]{gelmanDiagnostics}}.}
 \item{covariates}{Data frame containing input covariate values (possibly Z-normalized).}
 \item{source.area}{Vector of source area values.}
-\item{outMCMC}{Object of class \code{mcmcSampler} returned by the call to \code{\link{runMCMC}}.} 
+\item{outMCMC}{Object of class \code{mcmcSampler} returned by the call to \code{\link[BayesianTools]{runMCMC}}.} 
 Moreover, arguments \code{ll.type} (possibly changed to \code{"custom"} if a custom likelihood is specified), \code{no.det} 
 and \code{data} are added to the list.
 }

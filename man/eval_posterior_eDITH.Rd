@@ -13,7 +13,7 @@ eval_posterior_eDITH(x, river, quant = 0.5)
 
 \arguments{
   \item{x}{List as produced by \code{\link{run_eDITH_BT}}.}
-  \item{river}{A \code{river} object generated via \code{\link{aggregate_river}}.}
+  \item{river}{A \code{river} object generated via \code{\link[rivnet]{aggregate_river}}.}
   \item{quant}{Vector of quantiles.}
 }
 \value{

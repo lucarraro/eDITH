@@ -2,7 +2,7 @@
 \name{wigger}
 \alias{wigger}
 \title{River Wigger}
-\format{A \code{river} object. See \code{\link{extract_river}} documentation for details.}
+\format{A \code{river} object. See \code{\link[rivnet]{extract_river}} documentation for details.}
 \usage{
 data(wigger)
 }

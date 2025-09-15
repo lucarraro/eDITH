@@ -33,7 +33,7 @@ run_eDITH_single(param, river, covariates,  Z.normalize = TRUE,
   \item{\code{omega}, \code{sigma}, \code{Cstar}}{Parameters for estimation of the log-likelihood and detection probability. 
   Only required if \code{ll.type} is provided.}
   }}
-  \item{river}{A \code{river} object generated via \code{\link{aggregate_river}}.}
+  \item{river}{A \code{river} object generated via \code{\link[rivnet]{aggregate_river}}.}
   \item{covariates}{Data frame containing covariate values for all \code{river} reaches.}
   \item{Z.normalize}{Logical. Should covariates be Z-normalized?}
   \item{no.det}{Logical. Should a probability of non-detection be included in the model?}

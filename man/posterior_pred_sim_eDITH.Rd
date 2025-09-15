@@ -16,7 +16,7 @@ posterior_pred_sim_eDITH(x, river, nParamSets = 10000, nDrawsPerParamSet = 10,
 
 \arguments{
   \item{x}{List as produced by \code{\link{run_eDITH_BT}}.}
-  \item{river}{A \code{river} object generated via \code{\link{aggregate_river}}.}
+  \item{river}{A \code{river} object generated via \code{\link[rivnet]{aggregate_river}}.}
   \item{nParamSets}{Number of unique parameter sets sampled from the posterior distribution.}
   \item{nDrawsPerParamSet}{Number of simulations run per parameter set.}
   \item{verbose}{Logical. Should updates be printed on the console?}
@@ -32,7 +32,7 @@ predictive posterior simulation. Each row corresponds to a site where eDNA data 
 eDNA values (either concentrations or read numbers) predicted by the model for a given predictive posterior
 simulation at a given observational site.
 }
-\seealso{\code{\link{DHARMa}}.}
+\seealso{\code{\link[DHARMa]{DHARMa}}.}
 
 \examples{
 library(DHARMa)

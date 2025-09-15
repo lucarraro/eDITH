@@ -12,7 +12,7 @@ sampling_strategy_direct(river, nSites)
 }
 
 \arguments{
-  \item{river}{A \code{river} object generated via \code{\link{aggregate_river}}.}
+  \item{river}{A \code{river} object generated via \code{\link[rivnet]{aggregate_river}}.}
   \item{nSites}{Number of sites to be deployed. Cannot be higher than \code{river$AG$nNodes}.}
 }
 
