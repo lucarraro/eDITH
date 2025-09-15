@@ -1,9 +1,9 @@
 pandoc: 3.1.11
-pkgdown: 2.1.1
+pkgdown: 2.1.3
 pkgdown_sha: ~
 articles:
   eDITH: eDITH.html
-last_built: 2024-09-30T12:07Z
+last_built: 2025-09-15T08:18Z
 urls:
   reference: https://lucarraro.github.io/eDITH/reference
   article: https://lucarraro.github.io/eDITH/articles
